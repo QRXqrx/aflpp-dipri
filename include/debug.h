@@ -401,5 +401,15 @@ static inline const char *colorfilter(const char *x) {
                                                                \
   } while (0)
 
+
+// @DIST
+#define DIST_LOG(x...)           \
+  do {                            \
+                                  \
+    SAYF(cMGN "[D] " cRST x);   \
+    SAYF(cRST "\n");              \
+                                  \
+  } while (0)
+
 #endif                                                   /* ! _HAVE_DEBUG_H */
 

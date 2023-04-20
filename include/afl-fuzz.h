@@ -1096,6 +1096,10 @@ void update_bitmap_score(afl_state_t *, struct queue_entry *);
 void cull_queue(afl_state_t *);
 u32  calculate_score(afl_state_t *, struct queue_entry *);
 
+// @DIST
+void dist_seed_prioritize(afl_state_t *);
+void dist_seed_selection(afl_state_t *); // Selection by order (everytime, periodically, adaptive)
+
 /* Bitmap */
 
 void write_bitmap(afl_state_t *);
