@@ -2646,10 +2646,11 @@ stop_fuzzing:
     DIST_LOG("q->tc_ref, %u", q->tc_ref);
     printf("q->trace_mini: ");
     for (u32 j = 0; j < q->tc_ref; ++j) {
-      printf("%d ", q->trace_mini[j]);
+      printf("%u ", q->trace_mini[j]);
     }
     printf("\n");
   }
+  DIST_LOG("afl->queued_items, %u", afl->queued_items);
 
   afl->force_ui_update = 1;  // ensure the screen is reprinted
   afl->stop_soon = 1;        // ensure everything is written
