@@ -2641,6 +2641,7 @@ int main(int argc, char **argv_orig, char **envp) {
 stop_fuzzing:
 
   // @DIST-Debug: check q trace
+  sleep(3);
   for (u32 i = 0 ; i < afl->queued_items; ++i) {
     struct queue_entry *q = afl->queue_buf[i];
     DIST_LOG("q->tc_ref, %u", q->tc_ref);

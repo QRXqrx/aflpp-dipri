@@ -203,6 +203,10 @@ struct queue_entry {
 
   struct queue_entry *mother;           /* queue entry this based on        */
 
+  // @DIST
+  u8 *cov_vec;    /* Detailed covered edges, in [0, 1, ..., 0] format */
+  u8 *cov_len;    /* Length of the cov_vec, total number of the edges */
+
 };
 
 struct extra_data {
@@ -425,6 +429,25 @@ struct foreign_sync {
   time_t mtime;
 
 };
+
+// @DIST
+
+// Distance-based seed prioritization modes
+enum {
+
+  VANILLA,    /* 0 - Prioritize after adding every seed                   */
+  PERIODICAL, /* 1 - Prioritize periodically                              */
+  ADAPTIVE,   /* 2 - Prioritize after every prioritized seeds are fuzzed  */
+
+};
+
+typedef struct dist_globals {
+
+  u8 on;      /* Whether distance-based seed selection is on  */
+  u8 mode;    /* Vanilla, Periodical, Adaptive                */
+
+
+} dist_globals_t;
 
 typedef struct afl_state {
 
@@ -783,6 +806,9 @@ typedef struct afl_state {
   FILE *introspection_file;
   u32   bitsmap_size;
 #endif
+
+  // @DIST
+  dist_globals_t dist_sel;    /* Globals for distance-based seed selection */
 
 } afl_state_t;
 
