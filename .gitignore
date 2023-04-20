@@ -109,3 +109,4 @@ vuln_prog
 # @DIST
 __pycache__
 .DS_Store
+.idea

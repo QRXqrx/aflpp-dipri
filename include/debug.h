@@ -406,7 +406,7 @@ static inline const char *colorfilter(const char *x) {
 #define DIST_LOG(x...)           \
   do {                            \
                                   \
-    SAYF(cMGN "[D] " cRST x);   \
+    SAYF(cMGN "[DIST] " cRST x);   \
     SAYF(cRST "\n");              \
                                   \
   } while (0)

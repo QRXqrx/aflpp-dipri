@@ -2169,18 +2169,6 @@ int main(int argc, char **argv_orig, char **envp) {
 
   }
 
-  // @DIST-Debug: check q trace
-  for (u32 i = 0 ; i < afl->queued_items; ++i) {
-    struct queue_entry *q = afl->queue_buf[i];
-    DIST_LOG("q->tc_ref, %u", q->tc_ref);
-    printf("q->trace_mini: ");
-    for (u32 j = 0; j < q->tc_ref; ++j) {
-      printf("%d ", q->trace_mini[j]);
-    }
-    printf("\n");
-  }
-  exit(10086);
-
   if (afl->q_testcase_max_cache_entries) {
 
     afl->q_testcase_cache =
@@ -2651,6 +2639,17 @@ int main(int argc, char **argv_orig, char **envp) {
 
 // Deinitial afl instance
 stop_fuzzing:
+
+  // @DIST-Debug: check q trace
+  for (u32 i = 0 ; i < afl->queued_items; ++i) {
+    struct queue_entry *q = afl->queue_buf[i];
+    DIST_LOG("q->tc_ref, %u", q->tc_ref);
+    printf("q->trace_mini: ");
+    for (u32 j = 0; j < q->tc_ref; ++j) {
+      printf("%d ", q->trace_mini[j]);
+    }
+    printf("\n");
+  }
 
   afl->force_ui_update = 1;  // ensure the screen is reprinted
   afl->stop_soon = 1;        // ensure everything is written
