@@ -596,6 +596,13 @@ u8 calibrate_case(afl_state_t *afl, struct queue_entry *q, u8 *use_mem,
 
   update_bitmap_score(afl, q);
 
+  // @DIST
+  q->cov_len = afl->fsrv.map_size;
+  q->cov_vec = malloc(afl->fsrv.map_size);
+  memset(q->cov_vec, 0, afl->fsrv.map_size);
+  for (u32 i = 0 ; i < afl->fsrv.map_size; ++i)
+    q->cov_vec[i] = afl->fsrv.trace_bits[i];
+
   /* If this case didn't result in new output from the instrumentation, tell
      parent. This is a non-critical problem, but something to warn the user
      about. */

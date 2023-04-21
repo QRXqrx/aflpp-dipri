@@ -2644,10 +2644,15 @@ stop_fuzzing:
   sleep(3);
   for (u32 i = 0 ; i < afl->queued_items; ++i) {
     struct queue_entry *q = afl->queue_buf[i];
-    DIST_LOG("q->tc_ref, %u", q->tc_ref);
-    printf("q->trace_mini: ");
-    for (u32 j = 0; j < q->tc_ref; ++j) {
-      printf("%u ", q->trace_mini[j]);
+//    DIST_LOG("q->tc_ref, %u", q->tc_ref);
+//    printf("q->trace_mini: ");
+//    for (u32 j = 0; j < q->tc_ref; ++j) {
+//      printf("%u ", q->trace_mini[j]);
+//    }
+    DIST_LOG("q->cov_len, %u", q->cov_len);
+    printf("q->cov_vec: ");
+    for (u32 j = 0; j < q->cov_len; ++j) {
+      printf("%u ", q->cov_vec[j]);
     }
     printf("\n");
   }
