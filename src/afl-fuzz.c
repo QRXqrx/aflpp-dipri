@@ -2652,7 +2652,7 @@ stop_fuzzing:
     DIST_LOG("q->cov_len, %u", q->cov_len);
     printf("q->cov_vec: ");
     for (u32 j = 0; j < q->cov_len; ++j) {
-      printf("%u ", q->cov_vec[j]);
+      if (q->cov_vec[j]) printf("%u ", q->cov_vec[j]);
     }
     printf("\n");
   }
