@@ -2654,6 +2654,7 @@ stop_fuzzing:
   DIST_LOG("afl->queued_items, %u", afl->queued_items);
   DIST_LOG("afl->fsrv.map_size, %u", afl->fsrv.map_size);
   DIST_LOG("afl->fsrv.real_map_size, %u", afl->fsrv.real_map_size);
+  exit(10086);
 
   afl->force_ui_update = 1;  // ensure the screen is reprinted
   afl->stop_soon = 1;        // ensure everything is written
