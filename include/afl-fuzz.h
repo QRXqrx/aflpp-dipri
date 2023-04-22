@@ -204,8 +204,8 @@ struct queue_entry {
   struct queue_entry *mother;           /* queue entry this based on        */
 
   // @DIST
-  u8   *cov_vec;    /* Detailed covered edges, in [0, 1, ..., 0] format */
-  u32   cov_len;    /* Length of the cov_vec, total number of the edges */
+  u8   *cov_vec;  /* Cov vector that varies for different distance measures */
+  u32   cov_len;  /* Length of the cov_vec            */
 
 };
 
