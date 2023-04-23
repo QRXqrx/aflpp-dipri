@@ -22,4 +22,7 @@ int main(void) {
   printf("\n");
   printf("cnt=%u\n", cnt);
 
+  printf("0x1010&0x0001=%u\n", 0x1010 & 0x0001);
+  printf("10&1=%u\n", 10 & 1);
+
 }
