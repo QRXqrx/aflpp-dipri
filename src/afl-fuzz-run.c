@@ -381,6 +381,36 @@ static void write_with_gap(afl_state_t *afl, u8 *mem, u32 len, u32 skip_at,
 
 }
 
+// @DIST
+
+void record_cov_vec(afl_state_t *afl, struct queue_entry *q) {
+
+  dist_globals_t *dist = &afl->dist;
+
+  if (!dist->on) return ;
+  if (dist->vec_len <= 0)
+    FATAL("record_cov_vec(), invalid vec_len (%u)", dist->vec_len);
+
+  q->cov_vec = malloc(dist->vec_len);
+
+  if (dist->measure == EUCLIDEAN) {
+
+    // Non 0-1 distance: just copy
+
+    memcpy(q->cov_vec, afl->fsrv.trace_bits, dist->vec_len);
+
+  } else {
+
+    // 0-1 distance: record hit or not, not hit count
+
+    for (u32 i = 0; i < dist->vec_len; ++i)
+      q->cov_vec[i] = (afl->fsrv.trace_bits[i] > 0);
+
+
+  }
+
+}
+
 /* Calibrate a new test case. This is done when processing the input directory
    to warn about flaky or otherwise problematic test cases early on; and when
    new paths are discovered to detect variable behavior and so on. */
@@ -597,11 +627,7 @@ u8 calibrate_case(afl_state_t *afl, struct queue_entry *q, u8 *use_mem,
   update_bitmap_score(afl, q);
 
   // @DIST
-  q->cov_len = afl->fsrv.map_size;
-  q->cov_vec = malloc(afl->fsrv.map_size);
-  memset(q->cov_vec, 0, afl->fsrv.map_size);
-  for (u32 i = 0 ; i < afl->fsrv.map_size; ++i)
-    q->cov_vec[i] = afl->fsrv.trace_bits[i];
+  record_cov_vec(afl, q);
 
   /* If this case didn't result in new output from the instrumentation, tell
      parent. This is a non-critical problem, but something to warn the user

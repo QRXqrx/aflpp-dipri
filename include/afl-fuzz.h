@@ -204,8 +204,10 @@ struct queue_entry {
   struct queue_entry *mother;           /* queue entry this based on        */
 
   // @DIST
-  u8   *cov_vec;  /* Cov vector that varies for different distance measures */
-  u32   cov_len;  /* Length of the cov_vec            */
+  u8 *cov_vec;                          /* Coverage vector                    */
+  u8  has_dist;                         /* Has computed distance with others  */
+  double total_dist;                    /* Total accumulated distance         */
+  struct queue_entry *dist_next;
 
 };
 
@@ -432,6 +434,10 @@ struct foreign_sync {
 
 // @DIST
 
+const static char *dist_mode_names[] = {
+    "vanilla", "periodical", "adaptive"
+};
+
 // Distance-based seed prioritization modes
 enum {
 
@@ -441,11 +447,28 @@ enum {
 
 };
 
+// Distance measurements
+enum {
+
+  EUCLIDEAN,
+  HAMMING,
+  JACCARD,
+
+};
+
 typedef struct dist_globals {
 
-  u8 on;      /* Whether distance-based seed selection is on  */
-  u8 mode;    /* Vanilla, Periodical, Adaptive                */
+  u8  on;                 /* Whether distance-based seed selection is on  */
+  u8  mode;               /* Vanilla, Periodical, Adaptive                */
+  u8  measure;            /* Euclidean, Hamming, Jaccard                  */
+  u32 vec_len;            /* Length of cov vec, equals to real_map_size   */
 
+  u32  *prior_indices;    /* Seed prioritized by distance                 */
+  u32   prior_len;        /* Length of last prioritization                */
+  u32   prior_cur;        /* Current idx of the prioritized seed idx      */
+
+  u64   last_pri_time;    /* Last time we prioritize, used in PERIODICAL  */
+  u64   prior_period;     /* Period for prioritizing, used in PERIODICAL  */
 
 } dist_globals_t;
 
@@ -808,7 +831,7 @@ typedef struct afl_state {
 #endif
 
   // @DIST
-  dist_globals_t dist_sel;    /* Globals for distance-based seed selection */
+  dist_globals_t dist;          /* Globals for distance-based seed selection */
 
 } afl_state_t;
 
@@ -1124,7 +1147,7 @@ u32  calculate_score(afl_state_t *, struct queue_entry *);
 
 // @DIST
 void dist_seed_prioritize(afl_state_t *);
-void dist_seed_selection(afl_state_t *); // Selection by order (everytime, periodically, adaptive)
+void dist_seed_select(afl_state_t *, u64); // Selection after prioritizing
 
 /* Bitmap */
 

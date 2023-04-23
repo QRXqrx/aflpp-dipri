@@ -2158,6 +2158,13 @@ int main(int argc, char **argv_orig, char **envp) {
   memset(afl->virgin_tmout, 255, map_size);
   memset(afl->virgin_crash, 255, map_size);
 
+  // @DIST: Set length for coverage vector
+  dist_globals_t *dist = &afl->dist;
+  dist->vec_len = 0;
+  dist->on = !!getenv("AFL_DIST");
+  if (dist->on)
+    dist->vec_len = afl->fsrv.real_map_size;
+
   if (likely(!afl->afl_env.afl_no_startup_calibration)) {
 
     perform_dry_run(afl);
@@ -2649,9 +2656,9 @@ stop_fuzzing:
 //    for (u32 j = 0; j < q->tc_ref; ++j) {
 //      printf("%u ", q->trace_mini[j]);
 //    }
-    DIST_LOG("q->cov_len, %u", q->cov_len);
+    DIST_LOG("q->cov_len, %u", dist->vec_len);
     printf("q->cov_vec: ");
-    for (u32 j = 0; j < q->cov_len; ++j) {
+    for (u32 j = 0; j < dist->vec_len; ++j) {
       if (q->cov_vec[j]) printf("%u ", q->cov_vec[j]);
     }
     printf("\n");

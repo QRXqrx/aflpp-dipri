@@ -563,6 +563,8 @@ void add_to_queue(afl_state_t *afl, u8 *fname, u32 len, u8 passed_det) {
   q->testcase_buf = NULL;
   q->mother = afl->queue_cur;
 
+  // @DIST
+  q->has_dist = 0; // Mark as 0 once appended into queue
 
 #ifdef INTROSPECTION
   q->bitsmap_size = afl->bitsmap_size;
@@ -1420,3 +1422,173 @@ inline void queue_testcase_store_mem(afl_state_t *afl, struct queue_entry *q,
 
 }
 
+// @DIST
+double euclidean(u32 len, struct queue_entry *q1, struct queue_entry *q2) {
+  double  res = 0;
+  u8      hit_diff;
+  for (u32 i = 0; i < len; ++i) {
+    hit_diff = q1->cov_vec[i] - q2->cov_vec[i];
+    res += (hit_diff * hit_diff);
+  }
+  return res;
+}
+
+double hamming(u32 len, struct queue_entry *q1, struct queue_entry *q2) {
+  double res = 0;
+  for (u32 i = 0; i < len; ++i)
+    res += (q1->cov_vec[i] ^ q2->cov_vec[i]);
+  return res;
+}
+
+double jaccard(u32 len, struct queue_entry *q1, struct queue_entry *q2) {
+  double uset = 0;  // Union set
+  double iset = 0;  // Intersection set
+  for (u32 i = 0; i < len; ++i) {
+    uset += (q1->cov_vec[i] | q2->cov_vec[i]);
+    iset += (q1->cov_vec[i] & q2->cov_vec[i]);
+  }
+  return (uset - iset) / uset;
+}
+
+/// Quick sort by distance
+
+void swap(u32 *a, u32 *b) {
+
+  u32 tmp = *a;
+  *a = *b;
+  *b = tmp;
+
+}
+
+u32 dist_partition(struct queue_entry **qbuf, u32 arr[], u32 low, u32 high) {
+
+  double qdist_pi = qbuf[arr[high]]->total_dist;
+  u32 i = low - 1;
+
+  for (u32 j = low; j <= high - 1; j++) {
+    double qdist = qbuf[arr[j]]->total_dist;
+    // Sort by descend distances. From large to small
+    if (qdist > qdist_pi) {
+      ++i;
+      swap(&arr[i], &arr[j]);
+    }
+  }
+  swap(&arr[i + 1], &arr[high]);
+
+  return i + 1; // The pivot index.
+
+}
+
+void dist_qsort(struct queue_entry **qbuf, u32 arr[], u32 low, u32 high) {
+
+  if (low < high) {
+
+    u32 pivot = dist_partition(qbuf, arr, low, high);
+    dist_qsort(qbuf, arr, low, pivot - 1);
+    dist_qsort(qbuf, arr, pivot + 1, high);
+
+  }
+
+}
+
+/// Prioritize seeds according to different favors of measures
+void dist_seed_prioritize(afl_state_t *afl) {
+
+  dist_globals_t *dist = &afl->dist;
+
+  if (!dist->on) return ;
+  if (dist->vec_len <= 0)
+    FATAL("dist_seed_prioritize(), invalid vec_len (%u)", dist->vec_len);
+
+  // Calculate average distance.
+  for (u32 i = 0; i < afl->queued_items; ++i) {
+
+    struct queue_entry *q1 = afl->queue_buf[i];
+
+    // Skip old seeds, only calculate distance for freshly added seeds
+    if (q1->has_dist) continue ;
+
+    for (u32 j = 0; j < afl->queued_items; ++j) {
+
+      if (i == j) continue ; // No need to compute distance with itself.
+
+      struct queue_entry *q2 = afl->queue_buf[j];
+
+      // Update total dist
+      double qdist = 0;
+      switch (dist->measure) {
+        case EUCLIDEAN:
+          qdist = euclidean(dist->vec_len, q1, q2);
+          break ;
+        case HAMMING:
+          qdist = hamming(dist->vec_len, q1, q2);
+          break ;
+        case JACCARD:
+          qdist = jaccard(dist->vec_len, q1, q2);
+          break ;
+        default:
+          FATAL("dist_seed_prioritize(), unsupported distance measure!");
+      }
+
+      // Update distance
+      q1->total_dist += qdist;
+      q2->total_dist += qdist;
+
+    }
+
+    // Mark as 1
+    q1->has_dist = 1;
+
+  }
+
+  // Sort by distance
+  u32 idx_arr[afl->queued_items];
+  for (u32 i = 0; i < afl->queued_items; ++i) idx_arr[i] = i;
+  dist_qsort(afl->queue_buf, idx_arr, 0, afl->queued_items - 1);
+  dist->prior_indices = idx_arr;
+  dist->prior_len     = afl->queued_items;
+  dist->prior_cur     = 0;
+
+}
+
+/// Select after prioritizing (?)
+void dist_seed_select(afl_state_t *afl, u64 cur_time) {
+
+  dist_globals_t *dist = &afl->dist;
+
+  // Prioritize
+  switch (dist->mode) {
+
+    case VANILLA:
+      // Prioritize every time
+      dist_seed_prioritize(afl);
+      break ;
+
+    case PERIODICAL:
+      // prioritize once 1) exceeding update period, or 2) has no prioritized
+      // seeds (turn into adaptive).
+      if (unlikely((cur_time - dist->last_pri_time) >= dist->prior_period) ||
+                   (dist->prior_cur >= dist->prior_len))
+        dist_seed_prioritize(afl);
+      break ;
+
+    case ADAPTIVE:
+      // Prioritize once last prioritized seeds are all processed.
+      if (unlikely(dist->prior_cur >= dist->prior_len))
+        dist_seed_prioritize(afl);
+      break ;
+
+    default:
+      FATAL("dist_seed_select(), unsupported dist mode.");
+
+  }
+
+  if (unlikely(dist->prior_cur >= dist->prior_len))
+    FATAL("dist_seed_select(), no valid seed to selection (mode `%s`).",
+          dist_mode_names[dist->mode]);
+
+  // Pick next
+  afl->current_entry = dist->prior_indices[dist->prior_cur];
+  ++dist->prior_cur;
+
+}
