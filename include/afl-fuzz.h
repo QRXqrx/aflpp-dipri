@@ -433,8 +433,8 @@ struct foreign_sync {
 };
 
 // @DIST
-
 extern u8 *dist_mode_names[];
+extern u8 *dist_measure_names[];
 
 // Distance-based seed prioritization modes
 enum {
@@ -458,8 +458,9 @@ typedef struct dist_globals {
 
   u8  on;                 /* Whether distance-based seed selection is on  */
   u8  mode;               /* Vanilla, Periodical, Adaptive                */
-  u8 *mode_name;
   u8  measure;            /* Euclidean, Hamming, Jaccard                  */
+  u8 *mode_name;
+  u8 *measure_name;
   u32 vec_len;            /* Length of cov vec, equals to real_map_size   */
 
   u8    pass_first;       /* Do not prioritize in fuzz loop at first      */

@@ -1517,7 +1517,7 @@ void dist_seed_prioritize(afl_state_t *afl) {
       struct queue_entry *q2 = afl->queue_buf[j];
 
       // Update total dist
-      double qdist = 0;
+      double qdist;
       switch (dist->measure) {
         case EUCLIDEAN:
           qdist = euclidean(dist->vec_len, q1, q2);
@@ -1547,7 +1547,7 @@ void dist_seed_prioritize(afl_state_t *afl) {
   dist->prior_len     = afl->queued_items;
   dist->prior_cur     = 0;
   dist->prior_indices = NULL;
-  dist->prior_indices = malloc(dist->prior_len);
+  dist->prior_indices = (u32*) malloc(dist->prior_len);
   for (u32 i = 0; i < dist->prior_len; ++i) dist->prior_indices[i] = i;
   dist_qsort(afl->queue_buf, dist->prior_indices, 0, dist->prior_len - 1);
 

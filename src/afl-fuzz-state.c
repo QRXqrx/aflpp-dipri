@@ -41,6 +41,10 @@ u8 *dist_mode_names[] = {
     "VANILLA", "PERIODICAL", "ADAPTIVE"
 };
 
+u8 *dist_measure_names[] = {
+    "EUCLIDEAN", "HAMMING", "JACCARD"
+};
+
 /* Initialize MOpt "globals" for this afl state */
 
 static void init_mopt_globals(afl_state_t *afl) {
