@@ -1486,6 +1486,9 @@ void dist_qsort(struct queue_entry **qbuf, u32 arr[], u32 low, u32 high) {
   if (low < high) {
 
     u32 pivot = dist_partition(qbuf, arr, low, high);
+
+    DIST_LOG("dist_qsort(), pivot %u", pivot);
+
     dist_qsort(qbuf, arr, low, pivot - 1);
     dist_qsort(qbuf, arr, pivot + 1, high);
 
