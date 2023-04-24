@@ -1563,9 +1563,6 @@ void dist_seed_prioritize(afl_state_t *afl) {
 /// Select after prioritizing (?)
 void dist_seed_select(afl_state_t *afl, u64 cur_time) {
 
-  // @DIST-DEBUG
-  DIST_LOG("dist_seed_select()");
-
   afl->stage_name = "@DIST selection";
 
   dist_globals_t *dist = &afl->dist;
