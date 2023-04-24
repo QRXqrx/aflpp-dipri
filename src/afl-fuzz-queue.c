@@ -1564,8 +1564,8 @@ void dist_seed_prioritize(afl_state_t *afl) {
   }
   printf("\n");
 
-  if (cnt) exit(10086);
-  ++cnt;
+//  if (cnt) exit(10086);
+//  ++cnt;
 
 }
 
