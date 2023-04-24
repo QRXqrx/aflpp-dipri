@@ -434,9 +434,7 @@ struct foreign_sync {
 
 // @DIST
 
-u8 *dist_mode_names[] = {
-    "vanilla", "periodical", "adaptive"
-};
+extern u8 *dist_mode_names[];
 
 // Distance-based seed prioritization modes
 enum {

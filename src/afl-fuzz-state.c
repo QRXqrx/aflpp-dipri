@@ -36,6 +36,11 @@ char *power_names[POWER_SCHEDULES_NUM] = {"explore", "mmopt", "exploit",
                                           "fast",    "coe",   "lin",
                                           "quad",    "rare",  "seek"};
 
+// @DIST
+u8 *dist_mode_names[] = {
+    "vanilla", "periodical", "adaptive"
+};
+
 /* Initialize MOpt "globals" for this afl state */
 
 static void init_mopt_globals(afl_state_t *afl) {
