@@ -2184,8 +2184,11 @@ int main(int argc, char **argv_orig, char **envp) {
   cull_queue(afl);
 
   // @DIST
-  dist_seed_prioritize(afl);
-  dist->pass_first = 0;
+  if (dist->on) {
+    dist_seed_prioritize(afl);
+    dist->pass_first = 0;
+    DIST_LOG("Finish @DIST prioritization after dry run.");
+  }
 
   // ensure we have at least one seed that is not disabled.
   u32 entry, valid_seeds = 0;
@@ -2657,7 +2660,7 @@ int main(int argc, char **argv_orig, char **envp) {
 // Deinitial afl instance
 stop_fuzzing:
 
-  // @DIST-Debug: check q trace
+  // @DIST-DEBUG: check q trace
   sleep(3);
   for (u32 i = 0 ; i < afl->queued_items; ++i) {
     struct queue_entry *q = afl->queue_buf[i];

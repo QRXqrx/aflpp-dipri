@@ -1493,6 +1493,8 @@ void dist_qsort(struct queue_entry **qbuf, u32 arr[], u32 low, u32 high) {
 
 /// Prioritize seeds according to different favors of measures
 void dist_seed_prioritize(afl_state_t *afl) {
+  // @DIST-DEBUG
+  DIST_LOG("dist_seed_prioritize()");
 
   dist_globals_t *dist = &afl->dist;
 
@@ -1553,6 +1555,9 @@ void dist_seed_prioritize(afl_state_t *afl) {
 
 /// Select after prioritizing (?)
 void dist_seed_select(afl_state_t *afl, u64 cur_time) {
+
+  // @DIST-DEBUG
+  DIST_LOG("dist_seed_select()");
 
   dist_globals_t *dist = &afl->dist;
 
