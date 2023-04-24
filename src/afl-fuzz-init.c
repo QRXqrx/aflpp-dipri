@@ -3032,7 +3032,7 @@ void dist_init(afl_state_t *afl) {
   // Set mode name
   dist->mode_name = dist_mode_names[dist->mode];
 
-  DIST_LOG("Use mode %s, vec_len %u", dist->mode_name, dist->vec_len);
+  DIST_LOG("Mode %s, vec_len %u", dist->mode_name, dist->vec_len);
 
   if (dist->mode == PERIODICAL) {
 
