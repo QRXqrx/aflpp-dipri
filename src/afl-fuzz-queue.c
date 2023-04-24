@@ -1544,12 +1544,12 @@ void dist_seed_prioritize(afl_state_t *afl) {
   }
 
   // Sort by distance
-  u32 idx_arr[afl->queued_items];
-  for (u32 i = 0; i < afl->queued_items; ++i) idx_arr[i] = i;
-  dist_qsort(afl->queue_buf, idx_arr, 0, afl->queued_items - 1);
-  dist->prior_indices = idx_arr;
   dist->prior_len     = afl->queued_items;
   dist->prior_cur     = 0;
+  dist->prior_indices = NULL;
+  dist->prior_indices = malloc(dist->prior_len);
+  for (u32 i = 0; i < dist->prior_len; ++i) dist->prior_indices[i] = i;
+  dist_qsort(afl->queue_buf, dist->prior_indices, 0, dist->prior_len - 1);
 
   DIST_LOG("End of dist_seed_prioritize()");
   for (u32 i = 0; i < dist->prior_len; ++i) {
