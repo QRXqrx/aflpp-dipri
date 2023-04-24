@@ -1557,29 +1557,39 @@ void dist_seed_select(afl_state_t *afl, u64 cur_time) {
   dist_globals_t *dist = &afl->dist;
 
   // Prioritize
-  switch (dist->mode) {
+  if (dist->pass_first) {
 
-    case VANILLA:
-      // Prioritize every time
-      dist_seed_prioritize(afl);
-      break ;
+    switch (dist->mode) {
 
-    case PERIODICAL:
-      // prioritize once 1) exceeding update period, or 2) has no prioritized
-      // seeds (turn into adaptive).
-      if (unlikely((cur_time - dist->last_pri_time) >= dist->prior_period) ||
-                   (dist->prior_cur >= dist->prior_len))
+      case VANILLA:
+        // Prioritize every time
         dist_seed_prioritize(afl);
-      break ;
+        break ;
 
-    case ADAPTIVE:
-      // Prioritize once last prioritized seeds are all processed.
-      if (unlikely(dist->prior_cur >= dist->prior_len))
-        dist_seed_prioritize(afl);
-      break ;
+      case PERIODICAL:
+        // prioritize once 1) exceeding update period, or 2) has no prioritized
+        // seeds (turn into adaptive).
+        if (unlikely((cur_time - dist->last_pri_time) >= dist->period) ||
+            (dist->prior_cur >= dist->prior_len)) {
+          dist_seed_prioritize(afl);
+          dist->last_pri_time = cur_time;
+        }
+        break ;
 
-    default:
-      FATAL("dist_seed_select(), unsupported dist mode.");
+      case ADAPTIVE:
+        // Prioritize when all last prioritized seeds have been processed.
+        if (unlikely(dist->prior_cur >= dist->prior_len))
+          dist_seed_prioritize(afl);
+        break ;
+
+      default:
+        FATAL("dist_seed_select(), unsupported dist mode.");
+
+    }
+
+  } else {
+
+    dist->pass_first = 1;
 
   }
 
@@ -1589,6 +1599,7 @@ void dist_seed_select(afl_state_t *afl, u64 cur_time) {
 
   // Pick next
   afl->current_entry = dist->prior_indices[dist->prior_cur];
+  afl->queue_cur     = afl->queue_buf[afl->current_entry];
   ++dist->prior_cur;
 
 }

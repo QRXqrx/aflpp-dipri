@@ -2159,11 +2159,8 @@ int main(int argc, char **argv_orig, char **envp) {
   memset(afl->virgin_crash, 255, map_size);
 
   // @DIST: Set length for coverage vector
+  dist_init(afl);
   dist_globals_t *dist = &afl->dist;
-  dist->vec_len = 0;
-  dist->on = !!getenv("AFL_DIST");
-  if (dist->on)
-    dist->vec_len = afl->fsrv.real_map_size;
 
   if (likely(!afl->afl_env.afl_no_startup_calibration)) {
 
@@ -2185,6 +2182,10 @@ int main(int argc, char **argv_orig, char **envp) {
   }
 
   cull_queue(afl);
+
+  // @DIST
+  dist_seed_prioritize(afl);
+  dist->pass_first = 0;
 
   // ensure we have at least one seed that is not disabled.
   u32 entry, valid_seeds = 0;
@@ -2270,7 +2271,7 @@ int main(int argc, char **argv_orig, char **envp) {
   OKF("Writing mutation introspection to '%s'", ifn);
   #endif
 
-  // @DIST: main fuzz loop
+  // main fuzz loop
   while (likely(!afl->stop_soon)) {
 
     // Seed prioritization
@@ -2322,7 +2323,7 @@ int main(int argc, char **argv_orig, char **envp) {
 
       }
 
-      // Use vanilla afl seed selection
+      // @DIST: Use vanilla afl seed selection
       if (unlikely(afl->old_seed_selection)) {
 
         // Move entry-id advance to find the first selectable seed.
@@ -2519,29 +2520,38 @@ int main(int argc, char **argv_orig, char **envp) {
     // Seed Selection - fuzz_one() - loop
     do {
 
-      // Non-vanilla seed selection: before fuzz_one
+      // @DIST: Non-vanilla seed selection: before fuzz_one
       if (likely(!afl->old_seed_selection)) {
 
-        // See if we need reinit alias table. alias_table is used for random
-        // weighted seed selection
-        if (unlikely(prev_queued_items < afl->queued_items ||
-                     afl->reinit_table)) {
+        if (dist->mode) {
 
-          // we have new queue entries since the last run, recreate alias table
-          prev_queued_items = afl->queued_items;
-          create_alias_table(afl);
+          // Use distance-based selection
+          dist_seed_select(afl, time(NULL));
+
+        } else {
+
+          // See if we need reinit alias table. alias_table is used for random
+          // weighted seed selection
+          if (unlikely(prev_queued_items < afl->queued_items ||
+                       afl->reinit_table)) {
+
+            // we have new queue entries since the last run, recreate alias table
+            prev_queued_items = afl->queued_items;
+            create_alias_table(afl);
+
+          }
+
+          // AFLFast seed selection strategy.
+          do {
+
+            // select_next_queue_entry: return idx of the selected queue entry
+            afl->current_entry = select_next_queue_entry(afl);
+
+          } while (unlikely(afl->current_entry >= afl->queued_items));
+
+          afl->queue_cur = afl->queue_buf[afl->current_entry];
 
         }
-
-        // AFLFast seed selection strategy.
-        do {
-
-          // select_next_queue_entry: return idx of the selected queue entry
-          afl->current_entry = select_next_queue_entry(afl);
-
-        } while (unlikely(afl->current_entry >= afl->queued_items));
-
-        afl->queue_cur = afl->queue_buf[afl->current_entry];
 
       }
 
@@ -2584,7 +2594,7 @@ int main(int argc, char **argv_orig, char **envp) {
 
       if (unlikely(!afl->stop_soon && exit_1)) { afl->stop_soon = 2; }
 
-      // Vanilla seed selection: after fuzz_one
+      // @DIST: Vanilla seed selection, after fuzz_one()
       if (unlikely(afl->old_seed_selection)) {
 
         // Again

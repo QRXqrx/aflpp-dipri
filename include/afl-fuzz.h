@@ -434,7 +434,7 @@ struct foreign_sync {
 
 // @DIST
 
-const static char *dist_mode_names[] = {
+u8 *dist_mode_names[] = {
     "vanilla", "periodical", "adaptive"
 };
 
@@ -460,15 +460,17 @@ typedef struct dist_globals {
 
   u8  on;                 /* Whether distance-based seed selection is on  */
   u8  mode;               /* Vanilla, Periodical, Adaptive                */
+  u8 *mode_name;
   u8  measure;            /* Euclidean, Hamming, Jaccard                  */
   u32 vec_len;            /* Length of cov vec, equals to real_map_size   */
 
+  u8    pass_first;       /* Do not prioritize in fuzz loop at first      */
   u32  *prior_indices;    /* Seed prioritized by distance                 */
   u32   prior_len;        /* Length of last prioritization                */
   u32   prior_cur;        /* Current idx of the prioritized seed idx      */
 
   u64   last_pri_time;    /* Last time we prioritize, used in PERIODICAL  */
-  u64   prior_period;     /* Period for prioritizing, used in PERIODICAL  */
+  u64   period;           /* Period for prioritizing, used in PERIODICAL  */
 
 } dist_globals_t;
 
@@ -1250,6 +1252,9 @@ void   save_cmdline(afl_state_t *, u32, char **);
 void   read_foreign_testcases(afl_state_t *, int);
 void   write_crash_readme(afl_state_t *afl);
 u8     check_if_text_buf(u8 *buf, u32 len);
+
+// @DIST
+void dist_init(afl_state_t *afl);
 
 /* CmpLog */
 

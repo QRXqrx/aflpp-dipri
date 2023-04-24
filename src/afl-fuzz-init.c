@@ -2991,3 +2991,68 @@ void save_cmdline(afl_state_t *afl, u32 argc, char **argv) {
 
 }
 
+// @DIST
+void dist_init(afl_state_t *afl) {
+
+  dist_globals_t *dist = &afl->dist;
+
+  dist->vec_len = 0;
+  dist->on      = !!getenv("AFL_DIST");
+
+  if (!dist->on) {
+    DIST_LOG("Oops, @DIST is off...");
+    return ;
+  }
+
+  DIST_LOG("@DIST is on, yeah!");
+
+  // Set vector length
+  dist->vec_len = afl->fsrv.real_map_size;
+  dist->mode    = PERIODICAL;             // Use periodical mode by default
+
+  // Choose mode
+  if (!!getenv("DIST_MODE")) {
+    u8 mode_code = (u8) strtol(getenv("DIST_MODE"), NULL, 10);
+    switch (mode_code) {
+      case 0:
+        dist->mode = VANILLA;
+        break ;
+      case 1:
+        dist->mode = PERIODICAL;
+        break ;
+      case 2:
+        dist->mode = ADAPTIVE;
+        break ;
+      default:
+        dist->mode = PERIODICAL; // Use periodical mode by default
+        break ;
+    }
+  }
+
+  // Set mode name
+  dist->mode_name = dist_mode_names[dist->mode];
+
+  DIST_LOG("Use mode %s, vec_len %u", dist->mode_name, dist->vec_len);
+
+  if (dist->mode == PERIODICAL) {
+
+    dist->period = 300; // Set period to 5min by default
+
+    // Configure period from env
+    if (!!getenv("DIST_PERIOD")) {
+      dist->period = strtol(getenv("DIST_PERIOD"), NULL, 10);
+      if (dist->period <= 0) {
+        DIST_LOG("Oops, invalid period (%llus), reset to default (300s)", dist->period);
+        dist->period = 300;
+      }
+    }
+
+  } else {
+
+    dist->period = 0;
+
+  }
+
+
+}
+
