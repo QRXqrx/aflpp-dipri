@@ -2661,25 +2661,25 @@ int main(int argc, char **argv_orig, char **envp) {
 stop_fuzzing:
 
   // @DIST-DEBUG: check q trace
-  sleep(3);
-  for (u32 i = 0 ; i < afl->queued_items; ++i) {
-    struct queue_entry *q = afl->queue_buf[i];
+//  sleep(3);
+//  for (u32 i = 0 ; i < afl->queued_items; ++i) {
+//    struct queue_entry *q = afl->queue_buf[i];
 //    DIST_LOG("q->tc_ref, %u", q->tc_ref);
 //    printf("q->trace_mini: ");
 //    for (u32 j = 0; j < q->tc_ref; ++j) {
 //      printf("%u ", q->trace_mini[j]);
 //    }
-    DIST_LOG("q->cov_len, %u", dist->vec_len);
-    printf("q->cov_vec: ");
-    for (u32 j = 0; j < dist->vec_len; ++j) {
-      if (q->cov_vec[j]) printf("%u ", q->cov_vec[j]);
-    }
-    printf("\n");
-  }
-  DIST_LOG("afl->queued_items, %u", afl->queued_items);
-  DIST_LOG("afl->fsrv.map_size, %u", afl->fsrv.map_size);
-  DIST_LOG("afl->fsrv.real_map_size, %u", afl->fsrv.real_map_size);
-  exit(10086);
+//    DIST_LOG("q->cov_len, %u", dist->vec_len);
+//    printf("q->cov_vec: ");
+//    for (u32 j = 0; j < dist->vec_len; ++j) {
+//      if (q->cov_vec[j]) printf("%u ", q->cov_vec[j]);
+//    }
+//    printf("\n");
+//  }
+//  DIST_LOG("afl->queued_items, %u", afl->queued_items);
+//  DIST_LOG("afl->fsrv.map_size, %u", afl->fsrv.map_size);
+//  DIST_LOG("afl->fsrv.real_map_size, %u", afl->fsrv.real_map_size);
+//  exit(10086);
 
   afl->force_ui_update = 1;  // ensure the screen is reprinted
   afl->stop_soon = 1;        // ensure everything is written
