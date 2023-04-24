@@ -1551,6 +1551,12 @@ void dist_seed_prioritize(afl_state_t *afl) {
   dist->prior_len     = afl->queued_items;
   dist->prior_cur     = 0;
 
+  DIST_LOG("End of dist_seed_prioritize()");
+  for (u32 i = 0; i < dist->prior_len; ++i) {
+    printf("%u ", dist->prior_indices[i]);
+  }
+  printf("\n");
+
 }
 
 /// Select after prioritizing (?)
