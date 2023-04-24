@@ -1492,6 +1492,7 @@ void dist_qsort(struct queue_entry **qbuf, u32 arr[], u32 low, u32 high) {
 }
 
 /// Prioritize seeds according to different favors of measures
+static u32 cnt = 0;
 void dist_seed_prioritize(afl_state_t *afl) {
 
   afl->stage_name = "@DIST prioritization...";
@@ -1561,7 +1562,8 @@ void dist_seed_prioritize(afl_state_t *afl) {
   }
   printf("\n");
 
-  exit(10086);
+  if (cnt) exit(10086);
+  ++cnt;
 
 }
 
