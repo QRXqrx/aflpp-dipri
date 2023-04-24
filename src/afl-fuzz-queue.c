@@ -1554,7 +1554,7 @@ void dist_seed_prioritize(afl_state_t *afl) {
   DIST_LOG("End of dist_seed_prioritize()");
   for (u32 i = 0; i < dist->prior_len; ++i) {
     u32 idx = dist->prior_indices[i];
-    printf("%u %lf", idx, afl->queue_buf[idx]->total_dist);
+    printf("%u %lf, ", idx, afl->queue_buf[idx]->total_dist);
   }
   printf("\n");
 
