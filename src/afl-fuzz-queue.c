@@ -1548,6 +1548,8 @@ void dist_seed_prioritize(afl_state_t *afl) {
   dist->prior_cur     = 0;
   dist->prior_indices = NULL;
   dist->prior_indices = (u32*) malloc(dist->prior_len);
+  if (unlikely(!dist->prior_indices))
+    PFATAL("dist_seed_prioritize(), fail to malloc %u to dist->prior_indices", dist->prior_len);
   for (u32 i = 0; i < dist->prior_len; ++i) dist->prior_indices[i] = i;
   dist_qsort(afl->queue_buf, dist->prior_indices, 0, dist->prior_len - 1);
 
@@ -1581,9 +1583,6 @@ void dist_seed_select(afl_state_t *afl, u64 cur_time) {
       case PERIODICAL:
         // prioritize once 1) exceeding update period, or 2) has no prioritized
         // seeds (turn into adaptive).
-        DIST_LOG("dist_seed_select(), PERIODICAL");
-        DIST_LOG("dist->prior_cur %u, dist->prior_len %u",
-                 dist->prior_cur, dist->prior_len);
         if (unlikely((cur_time - dist->last_pri_time) >= dist->period) ||
             (dist->prior_cur >= dist->prior_len)) {
           dist_seed_prioritize(afl);
