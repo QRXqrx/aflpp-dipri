@@ -1481,7 +1481,7 @@ u32 dist_partition(struct queue_entry **qbuf, u32 arr[], u32 low, u32 high) {
 
 void dist_qsort(struct queue_entry **qbuf, u32 arr[], u32 low, u32 high) {
 
-  DIST_LOG("dist_qsort()");
+  DIST_LOG("dist_qsort(), low %u, high %u", low, high);
 
   if (low < high) {
 
@@ -1557,6 +1557,7 @@ void dist_seed_prioritize(afl_state_t *afl) {
   if (unlikely(!dist->prior_indices))
     PFATAL("dist_seed_prioritize(), fail to malloc %u to dist->prior_indices", dist->prior_len);
   for (u32 i = 0; i < dist->prior_len; ++i) dist->prior_indices[i] = i;
+  DIST_LOG("dist->prior_len %u", dist->prior_len);
   dist_qsort(afl->queue_buf, dist->prior_indices, 0, dist->prior_len - 1);
 
   DIST_LOG("End of dist_seed_prioritize()");
