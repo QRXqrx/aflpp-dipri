@@ -1495,6 +1495,7 @@ void dist_qsort(struct queue_entry **qbuf, u32 arr[], u32 low, u32 high) {
 void dist_seed_prioritize(afl_state_t *afl) {
 
   afl->stage_name = "@DIST prioritization...";
+  show_stats(afl);
 
   dist_globals_t *dist = &afl->dist;
 
@@ -1560,12 +1561,15 @@ void dist_seed_prioritize(afl_state_t *afl) {
   }
   printf("\n");
 
+  exit(10086);
+
 }
 
 /// Select after prioritizing (?)
 void dist_seed_select(afl_state_t *afl, u64 cur_time) {
 
   afl->stage_name = "@DIST selection";
+  show_stats(afl);
 
   dist_globals_t *dist = &afl->dist;
 
