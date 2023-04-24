@@ -1605,7 +1605,9 @@ void dist_seed_select(afl_state_t *afl, u64 cur_time) {
   // Pick next
   DIST_LOG("dist->prior_cur %u", dist->prior_cur);
   afl->current_entry = dist->prior_indices[dist->prior_cur];
+  DIST_LOG("afl->current_entry = dist->prior_indices[dist->prior_cur]");
   afl->queue_cur     = afl->queue_buf[afl->current_entry];
+  DIST_LOG("afl->queue_cur     = afl->queue_buf[afl->current_entry]");
   ++dist->prior_cur;
 
 }
