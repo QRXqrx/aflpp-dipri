@@ -3015,40 +3015,25 @@ void dist_init(afl_state_t *afl) {
 
   // Set vector length
   dist->vec_len = afl->fsrv.real_map_size;
-  dist->mode    = PERIODICAL;             // Use periodical mode by default
-  dist->measure = JACCARD;
 
   // Choose mode
-  if (!!getenv("DIST_MODE")) {
-    u8 mode_code = (u8) strtol(getenv("DIST_MODE"), NULL, 10);
-    switch (mode_code) {
-      case 0:
-        dist->mode = VANILLA;
-        break ;
-      case 2:
-        dist->mode = ADAPTIVE;
-        break ;
-      case 1:
-      default:
-        dist->mode = PERIODICAL; // Use periodical mode by default
-        break ;
-    }
+  u8 *mode = getenv("DIST_MODE");
+  if (!strcasecmp(mode, "v")) {
+    dist->mode = VANILLA;
+  } else if(!strcmp(mode, "a")) {
+    dist->mode = ADAPTIVE;
+  } else {
+    dist->mode = PERIODICAL; // Use periodical mode by default
   }
 
   // Choose measure
+  dist->measure = JACCARD;
   if (!!getenv("DIST_MEASURE")) {
-    u8 measure_code = (u8) strtol(getenv("DIST_MEASURE"), NULL, 10);
-    switch (measure_code) {
-      case 0:
-        dist->mode = EUCLIDEAN;
-        break ;
-      case 1:
-        dist->mode = HAMMING;
-        break ;
-      case 2:
-      default:
-        dist->mode = JACCARD;
-        break ;
+    u8 *measure = getenv("DIST_MEASURE");
+    if (!strcmp(mode, "h")) {
+      dist->measure = HAMMING;
+    } else if(!strcmp(mode, "e")) {
+      dist->measure = EUCLIDEAN;
     }
   }
 
@@ -3057,7 +3042,8 @@ void dist_init(afl_state_t *afl) {
   dist->measure_name  = dist_measure_names[dist->measure];
 
   // Log
-  DIST_LOG("Mode %s, vec_len %u", dist->mode_name, dist->vec_len);
+  DIST_LOG("mode %s, measure %s, vec_len %u",
+           dist->mode_name, dist->measure_name, dist->vec_len);
 
   if (dist->mode == PERIODICAL) {
 
