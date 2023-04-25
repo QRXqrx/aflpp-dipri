@@ -1560,7 +1560,7 @@ void dist_seed_prioritize(afl_state_t *afl) {
 
   // Sorting stage
   snprintf(afl->stage_name_buf, STAGE_BUF_SIZE,
-           "@DIST sort %u-it...", afl->queued_items);
+           "@DIST sort %u items", afl->queued_items);
   afl->stage_name = afl->stage_name_buf;
   show_stats(afl);
 
@@ -1613,9 +1613,12 @@ void dist_seed_select(afl_state_t *afl) {
         // prioritize once 1) exceeding update period, or 2) has no prioritized
         // seeds (turn into adaptive).
         time_elapsed = (get_cur_time() - dist->last_pri_time) / 1000;
-        if (unlikely(time_elapsed >= dist->period) ||
-            (dist->prior_cur >= dist->prior_len))
+        if (unlikely(time_elapsed >= dist->period ||
+                     dist->prior_cur >= dist->prior_len)) {
           dist_seed_prioritize(afl);
+          fprintf(dist->log_fp,
+                  "time_elapsed %llu, dist_seed_prioritize()\n", time_elapsed);
+        }
         break ;
 
       case ADAPTIVE:
