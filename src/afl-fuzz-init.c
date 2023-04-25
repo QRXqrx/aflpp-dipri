@@ -3030,9 +3030,9 @@ void dist_init(afl_state_t *afl) {
   dist->measure = JACCARD;
   if (!!getenv("DIST_MEASURE")) {
     u8 *measure = getenv("DIST_MEASURE");
-    if (!strcasecmp(mode, "H")) {
+    if (!strcasecmp(measure, "H")) {
       dist->measure = HAMMING;
-    } else if(!strcasecmp(mode, "E")) {
+    } else if(!strcasecmp(measure, "E")) {
       dist->measure = EUCLIDEAN;
     }
   }
