@@ -2061,18 +2061,6 @@ void setup_dirs_fds(afl_state_t *afl) {
   afl->fsrv.dev_urandom_fd = open("/dev/urandom", O_RDONLY);
   if (afl->fsrv.dev_urandom_fd < 0) { PFATAL("Unable to open /dev/urandom"); }
 
-  // @DIST: dist log file
-  dist_globals_t *dist = &afl->dist;
-  if (dist->on) {
-    tmp           = alloc_printf("%s/dist_log", afl->out_dir);
-    dist->log_fp  = fopen(tmp, "w");
-    if (!dist->log_fp) FATAL("@DIST, fopen(dist_log) failed!");
-    dist->log_cnt = 0;
-    // Write sth
-    fprintf(dist->log_fp, "@DIST, mode %s, measure %s, period %llu",
-            dist->mode_name, dist->measure_name, dist->period);
-  }
-
   /* Gnuplot output file. */
 
   tmp = alloc_printf("%s/plot_data", afl->out_dir);
@@ -2092,7 +2080,7 @@ void setup_dirs_fds(afl_state_t *afl) {
               "# relative_time, cycles_done, cur_item, corpus_count, "
               "pending_total, pending_favs, map_size, saved_crashes, "
               "saved_hangs, max_depth, execs_per_sec, total_execs, edges_found, "
-              "dist_total_time, non_dist_time\n");
+              "dist_time, non_dist_time\n");
     } else {
       fprintf(afl->fsrv.plot_file,
               "# relative_time, cycles_done, cur_item, corpus_count, "
@@ -3091,6 +3079,18 @@ void dist_init(afl_state_t *afl) {
   }
 
   dist->fuzz_start = 0;
+
+  // Log
+  // @DIST: dist log file
+  u8* log_path  = alloc_printf("%s/dist_log", afl->out_dir);
+  dist->log_fp  = fopen(log_path, "w");
+  if (!dist->log_fp) FATAL("@DIST, fopen(dist_log) failed!");
+  dist->log_cnt = 0;
+  ck_free(log_path);
+
+  // Write sth
+  fprintf(dist->log_fp, "@DIST, mode %s, measure %s, period %llu\n",
+          dist->mode_name, dist->measure_name, dist->period);
 
 }
 
