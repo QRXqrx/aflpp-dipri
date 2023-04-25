@@ -3017,7 +3017,6 @@ void dist_init(afl_state_t *afl) {
   dist_globals_t *dist = &afl->dist;
 
   dist->vec_len = 0;
-  dist->on      = !!getenv("DIST_MODE");
 
   if (!dist->on) {
     DIST_LOG("Oops, @DIST is off...");

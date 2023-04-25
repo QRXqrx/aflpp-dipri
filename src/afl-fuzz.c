@@ -1775,8 +1775,8 @@ int main(int argc, char **argv_orig, char **envp) {
   }
 
   // @DIST: Set length for coverage vector
-  dist_init(afl);
   dist_globals_t *dist = &afl->dist;
+  dist->on = !!getenv("DIST_MODE");
 
   get_core_count(afl);
 
@@ -2161,6 +2161,9 @@ int main(int argc, char **argv_orig, char **envp) {
 
   memset(afl->virgin_tmout, 255, map_size);
   memset(afl->virgin_crash, 255, map_size);
+
+  // @DIST: initialize before dry run.
+  dist_init(afl);
 
   if (likely(!afl->afl_env.afl_no_startup_calibration)) {
 
