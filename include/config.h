@@ -512,5 +512,8 @@
 
 #define AFL_TXT_STRING_MAX_MUTATIONS 6
 
+// @DIST
+#define DEFAULT_DIST_PERIOD   60U              /* 1min */
+
 #endif                                                  /* ! _HAVE_CONFIG_H */
 
