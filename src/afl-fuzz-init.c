@@ -3078,5 +3078,7 @@ void dist_init(afl_state_t *afl) {
   fprintf(dist->log_fp, "@DIST, mode %s, measure %s, period %llu\n",
           dist->mode_name, dist->measure_name, dist->period);
 
+  sleep(DIST_SLEEP_LOG);
+
 }
 
