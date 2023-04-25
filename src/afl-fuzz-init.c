@@ -3018,9 +3018,9 @@ void dist_init(afl_state_t *afl) {
 
   // Choose mode
   u8 *mode = getenv("DIST_MODE");
-  if (!strcasecmp(mode, "v")) {
+  if (!strcasecmp(mode, "V")) {
     dist->mode = VANILLA;
-  } else if(!strcmp(mode, "a")) {
+  } else if(!strcasecmp(mode, "A")) {
     dist->mode = ADAPTIVE;
   } else {
     dist->mode = PERIODICAL; // Use periodical mode by default
@@ -3030,9 +3030,9 @@ void dist_init(afl_state_t *afl) {
   dist->measure = JACCARD;
   if (!!getenv("DIST_MEASURE")) {
     u8 *measure = getenv("DIST_MEASURE");
-    if (!strcmp(mode, "h")) {
+    if (!strcasecmp(mode, "H")) {
       dist->measure = HAMMING;
-    } else if(!strcmp(mode, "e")) {
+    } else if(!strcasecmp(mode, "E")) {
       dist->measure = EUCLIDEAN;
     }
   }
