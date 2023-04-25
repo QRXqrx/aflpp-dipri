@@ -1290,6 +1290,8 @@ void show_stats_normal(afl_state_t *afl) {
 
   fflush(0);
 
+  DIST_LOG("End of show_stats_normal()!");
+
 }
 
 void show_stats_pizza(afl_state_t *afl) {
