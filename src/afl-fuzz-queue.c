@@ -1648,6 +1648,7 @@ void dist_seed_select(afl_state_t *afl) {
   afl->queue_cur->perf_score = calculate_score(afl, afl->queue_cur);
   ++dist->prior_cur;
 
+  // @DIST-DEBUG
   fprintf(dist->log_fp, "dist_seed_prioritize()-end,  dist->prior_cur %u, queue_cur->id %u, disabled %u, "
           "fuzz_level %u, n_fuzz_entry %u, trim_done %u, "
           "was_fuzzed %u, perf_score %lf\n",
