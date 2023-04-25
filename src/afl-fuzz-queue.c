@@ -1504,6 +1504,7 @@ void dist_seed_prioritize(afl_state_t *afl) {
            "%s %s prioritize...", dist->mode_name, dist->measure_name);
   afl->stage_name = afl->stage_name_buf;
   show_stats(afl);
+  exit(10086);
 
   // Calculate average distance.
   for (u32 i = 0; i < afl->queued_items; ++i) {
