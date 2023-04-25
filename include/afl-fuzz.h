@@ -457,6 +457,7 @@ typedef struct dist_globals {
 
   u8  on;                 /* Whether distance-based seed selection is on  */
   u8  fuzz_start;
+  u8  queue_updated;      /* Whether seed queue is updated                */
   u8  mode;               /* Vanilla, Periodical, Adaptive                */
   u8  measure;            /* Euclidean, Hamming, Jaccard                  */
   u8 *mode_name;

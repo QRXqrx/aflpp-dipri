@@ -633,6 +633,9 @@ void add_to_queue(afl_state_t *afl, u8 *fname, u32 len, u8 passed_det) {
 
   }
 
+  // @DIST: Mark as has new seed
+  afl->dist.queue_updated = 1;
+
 }
 
 /* Destroy the entire queue. */
@@ -1589,6 +1592,8 @@ void dist_seed_prioritize(afl_state_t *afl) {
           dist->log_cnt++, total_time, ((cal_complete_time - start_time) / 1000),
           ((sort_complete_time - cal_complete_time) / 1000));
 
+  // Mark new seed flag as 0 to avoid meaningless prioritization.
+  dist->queue_updated = 0;
 
 }
 
@@ -1600,12 +1605,12 @@ void dist_seed_select(afl_state_t *afl) {
   u64 time_elapsed;
 
   // Prioritize
-  if (dist->pass_first) {
+  if (dist->pass_first && dist->queue_updated) {
 
     switch (dist->mode) {
 
       case VANILLA:
-        // Prioritize every time
+        // Prioritize every time queue is updated
         dist_seed_prioritize(afl);
         break ;
 
@@ -1613,8 +1618,8 @@ void dist_seed_select(afl_state_t *afl) {
         // prioritize once 1) exceeding update period, or 2) has no prioritized
         // seeds (turn into adaptive).
         time_elapsed = (get_cur_time() - dist->last_pri_time) / 1000;
-        if (unlikely( (time_elapsed    >= dist->period) ||
-                      (dist->prior_cur >= dist->prior_len)) ) {
+        if (unlikely((time_elapsed >= dist->period) ||
+                     (dist->prior_cur >= dist->prior_len))) {
           dist_seed_prioritize(afl);
         }
         break ;
