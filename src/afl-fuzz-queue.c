@@ -1501,9 +1501,7 @@ void dist_seed_prioritize(afl_state_t *afl) {
     FATAL("dist_seed_prioritize(), invalid vec_len (%u)", dist->vec_len);
 
   if (likely(dist->fuzz_start)) {
-    snprintf(afl->stage_name_buf, STAGE_BUF_SIZE,
-             "%s %s prioritize...", dist->mode_name, dist->measure_name);
-    afl->stage_name = afl->stage_name_buf;
+    afl->stage_name = "@DIST prioritization...";
     show_stats(afl);
     exit(10086);
   }

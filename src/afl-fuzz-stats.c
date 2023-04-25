@@ -493,6 +493,9 @@ void show_stats(afl_state_t *afl) {
 
 void show_stats_normal(afl_state_t *afl) {
 
+  // @DIST-DEBUG
+  DIST_LOG("show_stats_normal(), afl->stage_name %s", afl->stage_name);
+
   double t_byte_ratio, stab_ratio;
 
   u64 cur_ms;
