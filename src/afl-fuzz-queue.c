@@ -1501,8 +1501,10 @@ void dist_seed_prioritize(afl_state_t *afl) {
     FATAL("dist_seed_prioritize(), invalid vec_len (%u)", dist->vec_len);
 
   if (likely(dist->fuzz_start)) {
-    afl->stage_name = "@DIST prioritization...";
+    afl->stage_name       = "@DIST prioritization...";
+    afl->force_ui_update  = 1;
     show_stats(afl);
+    afl->force_ui_update  = 0;
     exit(10086);
   }
 
@@ -1560,9 +1562,6 @@ void dist_seed_prioritize(afl_state_t *afl) {
 
 /// Select after prioritizing (?)
 void dist_seed_select(afl_state_t *afl, u64 cur_time) {
-
-  afl->stage_name = "@DIST selection";
-  show_stats(afl);
 
   dist_globals_t *dist = &afl->dist;
 
