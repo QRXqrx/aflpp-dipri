@@ -457,6 +457,7 @@ enum {
 typedef struct dist_globals {
 
   u8  on;                 /* Whether distance-based seed selection is on  */
+  u8  fuzz_start;
   u8  mode;               /* Vanilla, Periodical, Adaptive                */
   u8  measure;            /* Euclidean, Hamming, Jaccard                  */
   u8 *mode_name;
@@ -470,6 +471,7 @@ typedef struct dist_globals {
 
   u64   last_pri_time;    /* Last time we prioritize, used in PERIODICAL  */
   u64   period;           /* Period for prioritizing, used in PERIODICAL  */
+
 
 } dist_globals_t;
 

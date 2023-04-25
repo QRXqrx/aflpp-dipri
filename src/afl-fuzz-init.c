@@ -3049,7 +3049,6 @@ void dist_init(afl_state_t *afl) {
   dist->mode_name     = dist_mode_names[dist->mode];
   dist->measure_name  = dist_measure_names[dist->measure];
 
-
   // Log
   DIST_LOG("Mode %s, vec_len %u", dist->mode_name, dist->vec_len);
 
@@ -3072,6 +3071,7 @@ void dist_init(afl_state_t *afl) {
 
   }
 
+  dist->fuzz_start = 0;
 
 }
 

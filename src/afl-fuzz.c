@@ -2274,7 +2274,8 @@ int main(int argc, char **argv_orig, char **envp) {
   OKF("Writing mutation introspection to '%s'", ifn);
   #endif
 
-  // main fuzz loop
+  // @DIST: main fuzz loop
+  dist->fuzz_start = 1;
   while (likely(!afl->stop_soon)) {
 
     // Seed prioritization
