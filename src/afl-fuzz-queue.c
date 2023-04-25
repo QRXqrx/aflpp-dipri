@@ -1613,11 +1613,11 @@ void dist_seed_select(afl_state_t *afl) {
         // prioritize once 1) exceeding update period, or 2) has no prioritized
         // seeds (turn into adaptive).
         time_elapsed = (get_cur_time() - dist->last_pri_time) / 1000;
-        if (unlikely(time_elapsed >= dist->period ||
-                     dist->prior_cur >= dist->prior_len)) {
-          dist_seed_prioritize(afl);
+        if (unlikely( (time_elapsed    >= dist->period) ||
+                      (dist->prior_cur >= dist->prior_len)) ) {
           fprintf(dist->log_fp, "dist_seed_prioritize(), time_elapsed %llu, dist->period %llu, dist->prior_cur %u, dist->prior_len %u\n",
                   time_elapsed, dist->period, dist->prior_cur, dist->prior_len);
+          dist_seed_prioritize(afl);
         }
         break ;
 
