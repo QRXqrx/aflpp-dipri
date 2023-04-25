@@ -1494,16 +1494,16 @@ void dist_qsort(struct queue_entry **qbuf, u32 arr[], int low, int high) {
 /// Prioritize seeds according to different favors of measures
 void dist_seed_prioritize(afl_state_t *afl) {
 
-  DIST_LOG("dist_seed_prioritize()");
-
-  afl->stage_name = "@DIST prioritization...";
-  show_stats(afl);
-
   dist_globals_t *dist = &afl->dist;
 
   if (!dist->on) return ;
   if (dist->vec_len <= 0)
     FATAL("dist_seed_prioritize(), invalid vec_len (%u)", dist->vec_len);
+
+  snprintf(afl->stage_name_buf, STAGE_BUF_SIZE,
+           "%s %s prioritize...", dist->mode_name, dist->measure_name);
+  afl->stage_name = afl->stage_name_buf;
+  show_stats(afl);
 
   // Calculate average distance.
   for (u32 i = 0; i < afl->queued_items; ++i) {
@@ -1555,13 +1555,10 @@ void dist_seed_prioritize(afl_state_t *afl) {
   for (u32 i = 0; i < dist->prior_len; ++i) dist->prior_indices[i] = i;
   dist_qsort(afl->queue_buf, dist->prior_indices, 0, (int) dist->prior_len - 1);
 
-  DIST_LOG("End of dist_seed_prioritize()");
 }
 
 /// Select after prioritizing (?)
 void dist_seed_select(afl_state_t *afl, u64 cur_time) {
-
-  DIST_LOG("dist_seed_select()");
 
   afl->stage_name = "@DIST selection";
   show_stats(afl);
@@ -1575,14 +1572,12 @@ void dist_seed_select(afl_state_t *afl, u64 cur_time) {
 
       case VANILLA:
         // Prioritize every time
-        DIST_LOG("dist_seed_select(), VANILLA");
         dist_seed_prioritize(afl);
         break ;
 
       case PERIODICAL:
         // prioritize once 1) exceeding update period, or 2) has no prioritized
         // seeds (turn into adaptive).
-        DIST_LOG("dist_seed_select(), PERIODICAL");
         if (unlikely((cur_time - dist->last_pri_time) >= dist->period) ||
             (dist->prior_cur >= dist->prior_len)) {
           dist_seed_prioritize(afl);
@@ -1591,7 +1586,6 @@ void dist_seed_select(afl_state_t *afl, u64 cur_time) {
         break ;
 
       case ADAPTIVE:
-        DIST_LOG("dist_seed_select(), ADAPTIVE");
         // Prioritize when all last prioritized seeds have been processed.
         if (unlikely(dist->prior_cur >= dist->prior_len))
           dist_seed_prioritize(afl);
