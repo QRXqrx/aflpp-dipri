@@ -1606,8 +1606,6 @@ void dist_seed_select(afl_state_t *afl) {
 
       case VANILLA:
         // Prioritize every time
-        fprintf(dist->log_fp, "VANILLA, dist->prior_cur %u, dist->prior_len %u\n",
-                dist->prior_cur, dist->prior_len);
         dist_seed_prioritize(afl);
         break ;
 

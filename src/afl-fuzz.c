@@ -2530,7 +2530,7 @@ int main(int argc, char **argv_orig, char **envp) {
       // @DIST: Non-vanilla seed selection: before fuzz_one
       if (likely(!afl->old_seed_selection)) {
 
-        if (dist->mode) {
+        if (dist->on) {
 
           // Use distance-based selection
           dist_seed_select(afl);
