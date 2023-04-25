@@ -1512,8 +1512,7 @@ void dist_seed_prioritize(afl_state_t *afl) {
 
     // Calculation stage
     if (likely(dist->fuzz_start)) {
-      snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "@DIST cal item-%u %llus",
-               i, ((get_cur_time() - start_time) / 1000));
+      snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "@DIST cal item-%u", i);
       afl->stage_name = afl->stage_name_buf;
       show_stats(afl);
     }
