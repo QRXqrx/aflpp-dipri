@@ -1616,8 +1616,8 @@ void dist_seed_select(afl_state_t *afl) {
         if (unlikely(time_elapsed >= dist->period ||
                      dist->prior_cur >= dist->prior_len)) {
           dist_seed_prioritize(afl);
-          fprintf(dist->log_fp, "dist_seed_prioritize(), time_elapsed %llu, dist->prior_cur %u, dist->prior_len %u\n",
-                  time_elapsed, dist->prior_cur, dist->prior_len);
+          fprintf(dist->log_fp, "dist_seed_prioritize(), time_elapsed %llu, dist->period %llu, dist->prior_cur %u, dist->prior_len %u\n",
+                  time_elapsed, dist->period, dist->prior_cur, dist->prior_len);
         }
         break ;
 
