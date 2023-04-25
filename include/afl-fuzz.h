@@ -204,10 +204,9 @@ struct queue_entry {
   struct queue_entry *mother;           /* queue entry this based on        */
 
   // @DIST
-  u8 *cov_vec;                          /* Coverage vector                    */
-  u8  has_dist;                         /* Has computed distance with others  */
-  double total_dist;                    /* Total accumulated distance         */
-  struct queue_entry *dist_next;
+  u8     *cov_vec;                      /* Coverage vector                    */
+  u8      has_dist;                     /* Has computed distance with others  */
+  double  total_dist;                   /* Total accumulated distance         */
 
 };
 
