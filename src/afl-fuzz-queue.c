@@ -1584,9 +1584,9 @@ void dist_seed_prioritize(afl_state_t *afl) {
   dist->time_used += total_time;
 
   // Log
-  fprintf(dist->log_fp, "prior_round %u, total_time %llu, cal_time %llu, sort_time %llu",
-          ++dist->log_cnt, total_time, cal_complete_time - start_time,
-          sort_complete_time - cal_complete_time);
+  fprintf(dist->log_fp, "prior_round %u, total_time %llu, cal_time %llu, sort_time %llu\n",
+          ++dist->log_cnt, total_time, ((cal_complete_time - start_time) / 1000),
+          ((sort_complete_time - cal_complete_time) / 1000));
 
 }
 
