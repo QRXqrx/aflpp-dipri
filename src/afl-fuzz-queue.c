@@ -1500,16 +1500,20 @@ void dist_seed_prioritize(afl_state_t *afl) {
   if (dist->vec_len <= 0)
     FATAL("dist_seed_prioritize(), invalid vec_len (%u)", dist->vec_len);
 
-  if (likely(dist->fuzz_start)) {
-    afl->stage_name       = "@DIST prioritization...";
-    afl->force_ui_update  = 1;
-    show_stats(afl);
-    afl->force_ui_update  = 0;
-    exit(10086);
-  }
+  // Force UI update
+  afl->force_ui_update  = 1;
+  u64 start_time        = time(NULL);
 
   // Calculate average distance.
   for (u32 i = 0; i < afl->queued_items; ++i) {
+
+    // Calculation stage
+    if (likely(dist->fuzz_start)) {
+      snprintf(afl->stage_name_buf, STAGE_BUF_SIZE,
+               "@DIST cal %llus", time(NULL) - start_time);
+      afl->stage_name = afl->stage_name_buf;
+      show_stats(afl);
+    }
 
     struct queue_entry *q1 = afl->queue_buf[i];
 
@@ -1549,6 +1553,9 @@ void dist_seed_prioritize(afl_state_t *afl) {
 
   }
 
+  // Sorting stage
+  afl->stage_name = "@DIST qsort...";
+
   // Sort by distance
   dist->prior_len     = afl->queued_items;
   dist->prior_cur     = 0;
@@ -1557,6 +1564,9 @@ void dist_seed_prioritize(afl_state_t *afl) {
     PFATAL("dist_seed_prioritize(), fail to malloc %u to dist->prior_indices", dist->prior_len);
   for (u32 i = 0; i < dist->prior_len; ++i) dist->prior_indices[i] = i;
   dist_qsort(afl->queue_buf, dist->prior_indices, 0, (int) dist->prior_len - 1);
+
+  // Reset force
+  afl->force_ui_update = 0;
 
 }
 

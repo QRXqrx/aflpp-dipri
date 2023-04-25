@@ -476,9 +476,6 @@ static void check_term_size(afl_state_t *afl) {
 
 void show_stats(afl_state_t *afl) {
 
-  // @DIST-DEBUG
-  DIST_LOG("show_stats(), afl->stage_name %s", afl->stage_name);
-
   if (afl->pizza_is_served) {
 
     show_stats_pizza(afl);
@@ -492,9 +489,6 @@ void show_stats(afl_state_t *afl) {
 }
 
 void show_stats_normal(afl_state_t *afl) {
-
-  // @DIST-DEBUG
-  DIST_LOG("show_stats_normal(), afl->stage_name %s", afl->stage_name);
 
   double t_byte_ratio, stab_ratio;
 
@@ -1295,8 +1289,6 @@ void show_stats_normal(afl_state_t *afl) {
   /* Hallelujah! */
 
   fflush(0);
-
-  DIST_LOG("End of show_stats_normal()! afl->stage_name %s", afl->stage_name);
 
 }
 
