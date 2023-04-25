@@ -1615,7 +1615,7 @@ void dist_seed_select(afl_state_t *afl) {
         time_elapsed = (get_cur_time() - dist->last_pri_time) / 1000;
         if (unlikely( (time_elapsed    >= dist->period) ||
                       (dist->prior_cur >= dist->prior_len)) ) {
-          fprintf(dist->log_fp, "dist_seed_prioritize(), time_elapsed %llu, dist->period %llu, dist->prior_cur %u, dist->prior_len %u\n",
+          fprintf(dist->log_fp, "PERIODICAL, time_elapsed %llu, dist->period %llu, dist->prior_cur %u, dist->prior_len %u\n",
                   time_elapsed, dist->period, dist->prior_cur, dist->prior_len);
           dist_seed_prioritize(afl);
         }
@@ -1646,5 +1646,7 @@ void dist_seed_select(afl_state_t *afl) {
   afl->current_entry = dist->prior_indices[dist->prior_cur];
   afl->queue_cur     = afl->queue_buf[afl->current_entry];
   ++dist->prior_cur;
+
+  fprintf(dist->log_fp, "dist_seed_prioritize()-end,  dist->prior_cur %u\n", dist->prior_cur);
 
 }
