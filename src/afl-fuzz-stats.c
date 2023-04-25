@@ -476,6 +476,9 @@ static void check_term_size(afl_state_t *afl) {
 
 void show_stats(afl_state_t *afl) {
 
+  // @DIST-DEBUG
+  DIST_LOG("show_stats(), afl->stage_name %s", afl->stage_name);
+
   if (afl->pizza_is_served) {
 
     show_stats_pizza(afl);
