@@ -1501,8 +1501,11 @@ void dist_seed_prioritize(afl_state_t *afl) {
     FATAL("dist_seed_prioritize(), invalid vec_len (%u)", dist->vec_len);
 
   // Force UI update
-  afl->force_ui_update  = 1;
-  u64 start_time        = time(NULL);
+  afl->force_ui_update = 1;
+
+  // Record time points used by different stages
+  u64 start_time, cal_complete_time, sort_complete_time, total_time;
+  start_time = get_cur_time();
 
   // Calculate average distance.
   for (u32 i = 0; i < afl->queued_items; ++i) {
@@ -1510,7 +1513,7 @@ void dist_seed_prioritize(afl_state_t *afl) {
     // Calculation stage
     if (likely(dist->fuzz_start)) {
       snprintf(afl->stage_name_buf, STAGE_BUF_SIZE,
-               "@DIST cal %llus", time(NULL) - start_time);
+               "@DIST cal %llus", ((get_cur_time() - start_time) / 1000));
       afl->stage_name = afl->stage_name_buf;
       show_stats(afl);
     }
@@ -1553,6 +1556,9 @@ void dist_seed_prioritize(afl_state_t *afl) {
 
   }
 
+  // Record time used for calculating distances
+  cal_complete_time = get_cur_time();
+
   // Sorting stage
   snprintf(afl->stage_name_buf, STAGE_BUF_SIZE,
            "@DIST sort %u items", afl->queued_items);
@@ -1568,11 +1574,20 @@ void dist_seed_prioritize(afl_state_t *afl) {
   for (u32 i = 0; i < dist->prior_len; ++i) dist->prior_indices[i] = i;
   dist_qsort(afl->queue_buf, dist->prior_indices, 0, (int) dist->prior_len - 1);
 
+  // Record time used for sorting
+  sort_complete_time  = get_cur_time();
+  total_time          = ((sort_complete_time - start_time) / 1000);
+
   // Reset force
   afl->force_ui_update = 0;
 
   // Record time used by @DIST
-  dist->time_used += (time(NULL) - start_time);
+  dist->time_used += total_time;
+
+  // Log
+  fprintf(dist->log_fp, "prioritize %u, total_time %llu, cal_time %llu, sort_time %llu",
+          ++dist->log_cnt, total_time, cal_complete_time - start_time,
+          sort_complete_time - cal_complete_time);
 
 }
 

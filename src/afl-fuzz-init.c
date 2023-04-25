@@ -2061,6 +2061,15 @@ void setup_dirs_fds(afl_state_t *afl) {
   afl->fsrv.dev_urandom_fd = open("/dev/urandom", O_RDONLY);
   if (afl->fsrv.dev_urandom_fd < 0) { PFATAL("Unable to open /dev/urandom"); }
 
+  // @DIST: dist log file
+  dist_globals_t *dist = &afl->dist;
+  if (dist->on) {
+    tmp           = alloc_printf("%s/dist_log", afl->out_dir);
+    dist->log_fp  = fopen(tmp, "w");
+    if (!dist->log_fp) FATAL("@DIST, fopen(dist_log) failed!");
+    dist->log_cnt = 0;
+  }
+
   /* Gnuplot output file. */
 
   tmp = alloc_printf("%s/plot_data", afl->out_dir);

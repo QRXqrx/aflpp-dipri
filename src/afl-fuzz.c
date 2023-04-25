@@ -1774,6 +1774,10 @@ int main(int argc, char **argv_orig, char **envp) {
 
   }
 
+  // @DIST: Set length for coverage vector
+  dist_init(afl);
+  dist_globals_t *dist = &afl->dist;
+
   get_core_count(afl);
 
   atexit(at_exit);
@@ -2158,13 +2162,16 @@ int main(int argc, char **argv_orig, char **envp) {
   memset(afl->virgin_tmout, 255, map_size);
   memset(afl->virgin_crash, 255, map_size);
 
-  // @DIST: Set length for coverage vector
-  dist_init(afl);
-  dist_globals_t *dist = &afl->dist;
-
   if (likely(!afl->afl_env.afl_no_startup_calibration)) {
 
     perform_dry_run(afl);
+
+    // @DIST
+    if (dist->on) {
+      dist_seed_prioritize(afl);
+      dist->pass_first = 0;
+      DIST_LOG("Finish the first prioritization right after dry run.");
+    }
 
   } else {
 
@@ -2182,13 +2189,6 @@ int main(int argc, char **argv_orig, char **envp) {
   }
 
   cull_queue(afl);
-
-  // @DIST
-  if (dist->on) {
-    dist_seed_prioritize(afl);
-    dist->pass_first = 0;
-    DIST_LOG("Finish @DIST prioritization after dry run.");
-  }
 
   // ensure we have at least one seed that is not disabled.
   u32 entry, valid_seeds = 0;

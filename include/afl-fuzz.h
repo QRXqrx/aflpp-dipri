@@ -473,6 +473,9 @@ typedef struct dist_globals {
   u64   period;           /* Period for prioritizing, used in PERIODICAL  */
   u64   time_used;        /* Total time used for prioritization           */
 
+  FILE *log_fp;
+  u32   log_cnt;
+
 } dist_globals_t;
 
 typedef struct afl_state {
