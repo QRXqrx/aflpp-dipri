@@ -3055,7 +3055,7 @@ void dist_init(afl_state_t *afl) {
 
   if (dist->mode == PERIODICAL) {
 
-    dist->period = 300; // Set period to 5min by default
+    dist->period = 60; // Set period to 1min by default
 
     // Configure period from env
     if (!!getenv("DIST_PERIOD")) {
