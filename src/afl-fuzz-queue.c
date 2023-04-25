@@ -1647,8 +1647,8 @@ void dist_seed_select(afl_state_t *afl) {
   afl->queue_cur     = afl->queue_buf[afl->current_entry];
   ++dist->prior_cur;
 
-  fprintf(dist->log_fp, "dist_seed_prioritize()-end,  dist->prior_cur %u, queue_cur->disabled %u, fuzz_level %u, was_fuzzed %u\n",
-          dist->prior_cur, afl->queue_cur->disabled, afl->queue_cur->fuzz_level,
-          afl->queue_cur->was_fuzzed);
+  fprintf(dist->log_fp, "dist_seed_prioritize()-end,  dist->prior_cur %u, queue_cur->id %u, ->disabled %u, fuzz_level %u, was_fuzzed %u\n",
+          dist->prior_cur, afl->queue_cur->id, afl->queue_cur->disabled,
+          afl->queue_cur->fuzz_level, afl->queue_cur->was_fuzzed);
 
 }
