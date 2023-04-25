@@ -2533,7 +2533,7 @@ int main(int argc, char **argv_orig, char **envp) {
         if (dist->mode) {
 
           // Use distance-based selection
-          dist_seed_select(afl, get_cur_time());
+          dist_seed_select(afl);
 
         } else {
 
