@@ -1650,7 +1650,7 @@ void dist_seed_select(afl_state_t *afl) {
   ++dist->prior_cur;
 
   fprintf(dist->log_fp, "dist_seed_prioritize()-end,  dist->prior_cur %u, queue_cur->id %u, disabled %u, "
-          "fuzz_level %u, n_fuzz_entry %u, trim_done %u"
+          "fuzz_level %u, n_fuzz_entry %u, trim_done %u, "
           "was_fuzzed %u, perf_score %lf\n",
           dist->prior_cur, afl->queue_cur->id, afl->queue_cur->disabled,
           afl->queue_cur->fuzz_level, afl->queue_cur->n_fuzz_entry, afl->queue_cur->trim_done,
