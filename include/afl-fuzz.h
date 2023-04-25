@@ -1153,7 +1153,7 @@ u32  calculate_score(afl_state_t *, struct queue_entry *);
 
 // @DIST
 void dist_seed_prioritize(afl_state_t *);
-void dist_seed_select(afl_state_t *, u64); // Selection after prioritizing
+void dist_seed_select(afl_state_t *); // Selection after prioritizing
 
 /* Bitmap */
 

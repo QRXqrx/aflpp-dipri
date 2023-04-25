@@ -1576,6 +1576,7 @@ void dist_seed_prioritize(afl_state_t *afl) {
   // Record time used for sorting
   sort_complete_time  = get_cur_time();
   total_time          = ((sort_complete_time - start_time) / 1000);
+  dist->last_pri_time = sort_complete_time;
 
   // Reset force
   afl->force_ui_update = 0;
@@ -1588,12 +1589,15 @@ void dist_seed_prioritize(afl_state_t *afl) {
           dist->log_cnt++, total_time, ((cal_complete_time - start_time) / 1000),
           ((sort_complete_time - cal_complete_time) / 1000));
 
+
 }
 
 /// Select after prioritizing (?)
-void dist_seed_select(afl_state_t *afl, u64 cur_time) {
+void dist_seed_select(afl_state_t *afl) {
 
   dist_globals_t *dist = &afl->dist;
+
+  u64 time_elapsed;
 
   // Prioritize
   if (dist->pass_first) {
@@ -1608,11 +1612,10 @@ void dist_seed_select(afl_state_t *afl, u64 cur_time) {
       case PERIODICAL:
         // prioritize once 1) exceeding update period, or 2) has no prioritized
         // seeds (turn into adaptive).
-        if (unlikely((cur_time - dist->last_pri_time) >= dist->period) ||
-            (dist->prior_cur >= dist->prior_len)) {
+        time_elapsed = (get_cur_time() - dist->last_pri_time) / 1000;
+        if (unlikely(time_elapsed >= dist->period) ||
+            (dist->prior_cur >= dist->prior_len))
           dist_seed_prioritize(afl);
-          dist->last_pri_time = cur_time;
-        }
         break ;
 
       case ADAPTIVE:
