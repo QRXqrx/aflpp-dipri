@@ -2068,6 +2068,9 @@ void setup_dirs_fds(afl_state_t *afl) {
     dist->log_fp  = fopen(tmp, "w");
     if (!dist->log_fp) FATAL("@DIST, fopen(dist_log) failed!");
     dist->log_cnt = 0;
+    // Write sth
+    fprintf(dist->log_fp, "@DIST, mode %s, measure %s, period %llu",
+            dist->mode_name, dist->measure_name, dist->period);
   }
 
   /* Gnuplot output file. */
