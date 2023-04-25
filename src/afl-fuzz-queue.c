@@ -1554,7 +1554,10 @@ void dist_seed_prioritize(afl_state_t *afl) {
   }
 
   // Sorting stage
-  afl->stage_name = "@DIST qsort...";
+  snprintf(afl->stage_name_buf, STAGE_BUF_SIZE,
+           "@DIST sort %u items", afl->queued_items);
+  afl->stage_name = afl->stage_name_buf;
+  show_stats(afl);
 
   // Sort by distance
   dist->prior_len     = afl->queued_items;
@@ -1567,6 +1570,9 @@ void dist_seed_prioritize(afl_state_t *afl) {
 
   // Reset force
   afl->force_ui_update = 0;
+
+  // Record time used by @DIST
+  dist->time_used += (time(NULL) - start_time);
 
 }
 

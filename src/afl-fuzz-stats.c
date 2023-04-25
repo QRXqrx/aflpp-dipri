@@ -443,14 +443,35 @@ void maybe_update_plot_file(afl_state_t *afl, u32 t_bytes, double bitmap_cvg,
      favored_not_fuzzed, saved_crashes, saved_hangs, max_depth,
      execs_per_sec, edges_found */
 
-  fprintf(afl->fsrv.plot_file,
-          "%llu, %llu, %u, %u, %u, %u, %0.02f%%, %llu, %llu, %u, %0.02f, %llu, "
-          "%u\n",
-          ((afl->prev_run_time + get_cur_time() - afl->start_time) / 1000),
-          afl->queue_cycle - 1, afl->current_entry, afl->queued_items,
-          afl->pending_not_fuzzed, afl->pending_favored, bitmap_cvg,
-          afl->saved_crashes, afl->saved_hangs, afl->max_depth, eps,
-          afl->plot_prev_ed, t_bytes);                     /* ignore errors */
+  // @DIST, record dist time in plot_data
+  dist_globals_t *dist = &afl->dist;
+
+  if (dist->on) {
+
+    u64 relative_time = ((afl->prev_run_time + get_cur_time() - afl->start_time) / 1000);
+
+    fprintf(afl->fsrv.plot_file,
+            "%llu, %llu, %u, %u, %u, %u, %0.02f%%, %llu, %llu, %u, %0.02f, %llu, "
+            "%u, %llu, %llu\n",
+            relative_time,
+            afl->queue_cycle - 1, afl->current_entry, afl->queued_items,
+            afl->pending_not_fuzzed, afl->pending_favored, bitmap_cvg,
+            afl->saved_crashes, afl->saved_hangs, afl->max_depth, eps,
+            afl->plot_prev_ed, t_bytes,
+            dist->time_used, relative_time - dist->time_used); /* ignore errors */
+
+  } else {
+
+    fprintf(afl->fsrv.plot_file,
+            "%llu, %llu, %u, %u, %u, %u, %0.02f%%, %llu, %llu, %u, %0.02f, %llu, "
+            "%u\n",
+            ((afl->prev_run_time + get_cur_time() - afl->start_time) / 1000),
+            afl->queue_cycle - 1, afl->current_entry, afl->queued_items,
+            afl->pending_not_fuzzed, afl->pending_favored, bitmap_cvg,
+            afl->saved_crashes, afl->saved_hangs, afl->max_depth, eps,
+            afl->plot_prev_ed, t_bytes);                     /* ignore errors */
+
+  }
 
   fflush(afl->fsrv.plot_file);
 

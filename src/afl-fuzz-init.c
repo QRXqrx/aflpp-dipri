@@ -2074,11 +2074,19 @@ void setup_dirs_fds(afl_state_t *afl) {
     afl->fsrv.plot_file = fdopen(fd, "w");
     if (!afl->fsrv.plot_file) { PFATAL("fdopen() failed"); }
 
-    fprintf(
-        afl->fsrv.plot_file,
-        "# relative_time, cycles_done, cur_item, corpus_count, "
-        "pending_total, pending_favs, map_size, saved_crashes, "
-        "saved_hangs, max_depth, execs_per_sec, total_execs, edges_found\n");
+    // @DIST, record dist time in plot_data
+    if (afl->dist.on) {
+      fprintf(afl->fsrv.plot_file,
+              "# relative_time, cycles_done, cur_item, corpus_count, "
+              "pending_total, pending_favs, map_size, saved_crashes, "
+              "saved_hangs, max_depth, execs_per_sec, total_execs, edges_found, "
+              "dist_total_time, non_dist_time\n");
+    } else {
+      fprintf(afl->fsrv.plot_file,
+              "# relative_time, cycles_done, cur_item, corpus_count, "
+              "pending_total, pending_favs, map_size, saved_crashes, "
+              "saved_hangs, max_depth, execs_per_sec, total_execs, edges_found\n");
+    }
 
   } else {
 

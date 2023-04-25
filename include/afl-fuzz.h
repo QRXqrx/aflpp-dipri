@@ -471,7 +471,7 @@ typedef struct dist_globals {
 
   u64   last_pri_time;    /* Last time we prioritize, used in PERIODICAL  */
   u64   period;           /* Period for prioritizing, used in PERIODICAL  */
-
+  u64   time_used;        /* Total time used for prioritization           */
 
 } dist_globals_t;
 
