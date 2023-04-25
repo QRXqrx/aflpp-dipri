@@ -2564,6 +2564,7 @@ int main(int argc, char **argv_orig, char **envp) {
 
       // Input generation and execution
       skipped_fuzz = fuzz_one(afl);
+      fprintf(dist->log_fp, "skipped_fuzz %u, afl->queue_cur->id %u\n", skipped_fuzz, afl->queue_cur->id);
   #ifdef INTROSPECTION /* Seem irrelevant to seed schedule */
       ++afl->queue_cur->stats_selected;
 
