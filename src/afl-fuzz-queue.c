@@ -1549,8 +1549,7 @@ void dist_seed_prioritize(afl_state_t *afl) {
   // Sort by distance
   dist->prior_len     = afl->queued_items;
   dist->prior_cur     = 0;
-  dist->prior_indices = NULL;
-  dist->prior_indices = (u32*) malloc(dist->prior_len);
+  dist->prior_indices = (u32*) realloc(dist->prior_indices, dist->prior_len * sizeof(u32));
   if (unlikely(!dist->prior_indices))
     PFATAL("dist_seed_prioritize(), fail to malloc %u to dist->prior_indices", dist->prior_len);
   for (u32 i = 0; i < dist->prior_len; ++i) dist->prior_indices[i] = i;

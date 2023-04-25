@@ -2,6 +2,7 @@
 // Test memset
 //
 #include <stdio.h>
+#include <stdlib.h>
 #include <memory.h>
 
 typedef u_int8_t u8;
@@ -20,5 +21,17 @@ int main(void) {
   for (int i = 0 ; i < 4; ++i)
     printf("%d ", u8arr2[i]);
   printf("\n");
+
+  u8 *mem = calloc(8, sizeof(mem));
+//  u8 *mem = malloc(8 * sizeof(mem));
+  for (int i = 0 ; i < 100; i ++)
+    printf("%u ", mem[i]);
+  printf("\n");
+  printf("(mem == NULL) %u\n", mem == NULL);
+  printf("mem %p\n", mem);
+  free(mem);
+  mem = NULL;
+  printf("(mem == NULL) %u\n", mem == NULL);
+  printf("mem %p\n", mem);
 
 }
