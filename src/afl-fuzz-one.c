@@ -398,12 +398,7 @@ u8 fuzz_one_original(afl_state_t *afl) {
 
       if (el->afl_custom_queue_get &&
           !el->afl_custom_queue_get(el->data, afl->queue_cur->fname)) {
-
-        // @DIST-DEBUG
-        fprintf(afl->dist.log_fp, "fuzz_one_original(), skip_fuzz=1 type1\n");
-        
         return 1;
-
       }
 
     });
@@ -418,12 +413,7 @@ u8 fuzz_one_original(afl_state_t *afl) {
 
     if ((afl->queue_cur->fuzz_level || !afl->queue_cur->favored) &&
         likely(rand_below(afl, 100) < SKIP_TO_NEW_PROB)) {
-
-      // @DIST-DEBUG
-      fprintf(afl->dist.log_fp, "fuzz_one_original(), skip_fuzz=1 type2\n");
-      
       return 1;
-
     }
 
   } else if (!afl->non_instrumented_mode && !afl->queue_cur->favored &&
@@ -437,17 +427,13 @@ u8 fuzz_one_original(afl_state_t *afl) {
     if (afl->queue_cycle > 1 && !afl->queue_cur->fuzz_level) {
 
       if (likely(rand_below(afl, 100) < SKIP_NFAV_NEW_PROB)) { 
-        // @DIST-DEBUG
-        fprintf(afl->dist.log_fp, "fuzz_one_original(), skip_fuzz=1 type3\n");
-        return 1; 
+        return 1;
       }
 
     } else {
 
       if (likely(rand_below(afl, 100) < SKIP_NFAV_OLD_PROB)) { 
-        // @DIST-DEBUG
-        fprintf(afl->dist.log_fp, "fuzz_one_original(), skip_fuzz=1 type4\n");
-        return 1; 
+        return 1;
       }
 
     }
