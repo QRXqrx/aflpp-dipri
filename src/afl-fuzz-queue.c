@@ -1513,17 +1513,17 @@ void dist_seed_prioritize(afl_state_t *afl) {
   // Calculate average distance.
   for (u32 i = 0; i < afl->queued_items; ++i) {
 
+    struct queue_entry *q1 = afl->queue_buf[i];
+
+    // Skip old seeds, only calculate distance for freshly added seeds
+    if (q1->has_dist) continue ;
+
     // Calculation stage
     if (likely(dist->fuzz_start)) {
       snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "@DIST cal item-%u", i);
       afl->stage_name = afl->stage_name_buf;
       show_stats(afl);
     }
-
-    struct queue_entry *q1 = afl->queue_buf[i];
-
-    // Skip old seeds, only calculate distance for freshly added seeds
-    if (q1->has_dist) continue ;
 
     for (u32 j = 0; j < afl->queued_items; ++j) {
 
@@ -1588,8 +1588,10 @@ void dist_seed_prioritize(afl_state_t *afl) {
   dist->time_used += total_time;
 
   // Log
-  fprintf(dist->log_fp, "prior_round %u, total_time %llu, cal_time %llu, sort_time %llu\n",
-          dist->log_cnt++, total_time, ((cal_complete_time - start_time) / 1000),
+  fprintf(dist->log_fp, "prior_round %u, prior_time %llu,"
+          "total_time %llu, cal_time %llu, sort_time %llu\n",
+          dist->log_cnt++, ((dist->last_pri_time - afl->start_time) / 1000),
+          total_time, ((cal_complete_time - start_time) / 1000),
           ((sort_complete_time - cal_complete_time) / 1000));
 
   // Mark new seed flag as 0 to avoid meaningless prioritization.
