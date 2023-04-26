@@ -3042,8 +3042,8 @@ void dist_init(afl_state_t *afl) {
   dist->measure_name  = dist_measure_names[dist->measure];
 
   // Log
-  DIST_LOG("mode %s, measure %s, vec_len %u",
-           dist->mode_name, dist->measure_name, dist->vec_len);
+  DIST_LOG("mode %s, measure %s, period %llu, vec_len %u",
+           dist->mode_name, dist->measure_name, dist->period, dist->vec_len);
 
   if (dist->mode == PERIODICAL) {
 
