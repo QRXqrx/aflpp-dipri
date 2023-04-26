@@ -1588,10 +1588,10 @@ void dist_seed_prioritize(afl_state_t *afl) {
   dist->time_used += total_time;
 
   // Log
-  fprintf(dist->log_fp, "prior_round %u, prior_time %llu,"
+  fprintf(dist->log_fp, "prior_round %u, prior_time %llu, queued_items %u, "
           "total_time %llu, cal_time %llu, sort_time %llu\n",
           dist->log_cnt++, ((dist->last_pri_time - afl->start_time) / 1000),
-          total_time, ((cal_complete_time - start_time) / 1000),
+          afl->queued_items, total_time, ((cal_complete_time - start_time) / 1000),
           ((sort_complete_time - cal_complete_time) / 1000));
 
   // Mark new seed flag as 0 to avoid meaningless prioritization.
