@@ -1428,19 +1428,19 @@ inline void queue_testcase_store_mem(afl_state_t *afl, struct queue_entry *q,
 // @DIST
 double euclidean(u32 len, struct queue_entry *q1, struct queue_entry *q2) {
   double  res = 0;
-  u8      hit_diff;
+  u32     hit_diff;
   for (u32 i = 0; i < len; ++i) {
     hit_diff = q1->cov_vec[i] - q2->cov_vec[i];
     res += (hit_diff * hit_diff);
   }
-  return res;
+  return sqrt(res) / len;
 }
 
 double hamming(u32 len, struct queue_entry *q1, struct queue_entry *q2) {
   double res = 0;
   for (u32 i = 0; i < len; ++i)
     res += (q1->cov_vec[i] ^ q2->cov_vec[i]);
-  return res;
+  return res / len;
 }
 
 double jaccard(u32 len, struct queue_entry *q1, struct queue_entry *q2) {
