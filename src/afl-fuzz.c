@@ -2738,6 +2738,9 @@ stop_fuzzing:
 
   if (frida_afl_preload) { ck_free(frida_afl_preload); }
 
+  // @DIST: record seed information before destroying the queue
+  dist_record_queue(afl);
+
   fclose(afl->fsrv.plot_file);
   destroy_queue(afl);
   destroy_extras(afl);

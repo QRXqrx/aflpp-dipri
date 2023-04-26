@@ -1653,3 +1653,27 @@ void dist_seed_select(afl_state_t *afl) {
 
 
 }
+
+void dist_record_queue(afl_state_t *afl) {
+
+  u8    *fpath  = NULL;
+  FILE  *fp     = NULL;
+
+  // Open file
+  fpath = alloc_printf("%s/dist_queue", afl->out_dir);
+  fp    = fopen(fpath, "w");
+
+  // Log
+  DIST_LOG("Record dist info for queued cases to '%s'...", fpath);
+
+  // Write in format: <id>,<total_dist>,<fuzz_level>,<favored>,<bitmap_size>
+  fprintf(fp, "id,total_dist,fuzz_level,favored,bitmap_size\n");
+  for (u32 i = 0; i < afl->queued_items; ++i) {
+    struct queue_entry *q = afl->queue_buf[i];
+    fprintf(fp, "%u,%lf,%u,%u,%u\n",
+            q->id, q->total_dist, q->fuzz_level, q->favored, q->bitmap_size);
+  }
+
+  ck_free(fpath);
+
+}
