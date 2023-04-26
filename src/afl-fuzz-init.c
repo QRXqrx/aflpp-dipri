@@ -3041,10 +3041,6 @@ void dist_init(afl_state_t *afl) {
   dist->mode_name     = dist_mode_names[dist->mode];
   dist->measure_name  = dist_measure_names[dist->measure];
 
-  // Log
-  DIST_LOG("mode %s, measure %s, period %llu, vec_len %u",
-           dist->mode_name, dist->measure_name, dist->period, dist->vec_len);
-
   if (dist->mode == PERIODICAL) {
 
     dist->period = DEFAULT_DIST_PERIOD;
@@ -3067,7 +3063,13 @@ void dist_init(afl_state_t *afl) {
   dist->fuzz_start = 0;
 
   // Log
-  // @DIST: dist log file
+
+  // Screen
+  DIST_LOG("mode %s, measure %s, period %llu, vec_len %u",
+           dist->mode_name, dist->measure_name, dist->period, dist->vec_len);
+  sleep(DIST_SLEEP_LOG);
+
+  // File
   u8* log_path  = alloc_printf("%s/dist_log", afl->out_dir);
   dist->log_fp  = fopen(log_path, "w");
   if (!dist->log_fp) FATAL("@DIST, fopen(dist_log) failed!");
@@ -3077,8 +3079,6 @@ void dist_init(afl_state_t *afl) {
   // Write sth
   fprintf(dist->log_fp, "@DIST, mode %s, measure %s, period %llu\n",
           dist->mode_name, dist->measure_name, dist->period);
-
-  sleep(DIST_SLEEP_LOG);
 
 }
 
