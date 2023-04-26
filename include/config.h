@@ -513,7 +513,7 @@
 #define AFL_TXT_STRING_MAX_MUTATIONS 6
 
 // @DIST
-#define DEFAULT_DIST_PERIOD   300U              /* 1min */
+#define DEFAULT_DIST_PERIOD   300U              /* 5 min */
 #define DIST_SLEEP_LOG        2U
 
 #endif                                                  /* ! _HAVE_CONFIG_H */
