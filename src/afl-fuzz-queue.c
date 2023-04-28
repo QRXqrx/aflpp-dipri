@@ -1637,15 +1637,24 @@ void dist_seed_select(afl_state_t *afl) {
 
     }
 
-  } else {
+  } else if (!dist->pass_first) {
 
     dist->pass_first = 1;
 
+  } else {
+
+    // Reset prior_cur in case queue are not updated.
+    dist->prior_cur = 0;
+
   }
 
-  if (unlikely(dist->prior_cur >= dist->prior_len))
-    FATAL("dist_seed_select(), no valid seed to selection (mode `%s`).",
-          dist_mode_names[dist->mode]);
+  if (unlikely(dist->prior_cur >= dist->prior_len)) {
+    dist->prior_cur = 0;
+    // TODO
+//    FATAL("dist_seed_select(), no valid seed to selection (mode `%s`).",
+//          dist_mode_names[dist->mode]);
+  }
+
 
   // Pick next
   afl->current_entry          = dist->prior_indices[dist->prior_cur++];
