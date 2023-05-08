@@ -1463,6 +1463,7 @@ void swap(u32 *a, u32 *b) {
 
 }
 
+// TODO: Is the order correct?
 int dist_partition(struct queue_entry **qbuf, u32 arr[], int low, int high) {
 
   double qdist_pi = qbuf[arr[high]]->total_dist;
@@ -1596,6 +1597,16 @@ void dist_seed_prioritize(afl_state_t *afl) {
 
   // Mark new seed flag as 0 to avoid meaningless prioritization.
   dist->queue_updated = 0;
+
+  // @DIST-DEBUG
+  for (u32 i = 0 ; i < dist->prior_len; ++i) {
+    u32 idx = dist->prior_indices[i];
+    struct queue_entry *q = afl->queue_buf[idx];
+    printf("(%d %d %lf),", idx, q->id, q->total_dist);
+  }
+  printf("\n");
+  exit(1);
+
 
 }
 
