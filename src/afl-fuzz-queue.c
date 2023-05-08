@@ -1599,13 +1599,13 @@ void dist_seed_prioritize(afl_state_t *afl) {
   dist->queue_updated = 0;
 
   // @DIST-DEBUG
-  for (u32 i = 0 ; i < dist->prior_len; ++i) {
-    u32 idx = dist->prior_indices[i];
-    struct queue_entry *q = afl->queue_buf[idx];
-    printf("(%d %d %d %lf),", i, idx, q->id, q->total_dist);
-  }
-  printf("\n");
-  if (dist->pass_first) exit(1);
+//  for (u32 i = 0 ; i < dist->prior_len; ++i) {
+//    u32 idx = dist->prior_indices[i];
+//    struct queue_entry *q = afl->queue_buf[idx];
+//    printf("(%d %d %d %lf),", i, idx, q->id, q->total_dist);
+//  }
+//  printf("\n");
+//  if (dist->pass_first) exit(1);
 
 
 }
@@ -1656,11 +1656,13 @@ void dist_seed_select(afl_state_t *afl) {
 
   if (unlikely(dist->prior_cur >= dist->prior_len)) {
 
+    // TODO: should we sanitize?
+    // FATAL("dist_seed_select(), no valid seed to selection (mode `%s`).",
+    //       dist_mode_names[dist->mode]);
+
     // Reset prior_cur in case queue are not updated.
     dist->prior_cur = 0;
-    // TODO: should we sanitize?
-//    FATAL("dist_seed_select(), no valid seed to selection (mode `%s`).",
-//          dist_mode_names[dist->mode]);
+
   }
 
 
