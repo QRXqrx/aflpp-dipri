@@ -1605,7 +1605,7 @@ void dist_seed_prioritize(afl_state_t *afl) {
     printf("(%d %d %lf),", idx, q->id, q->total_dist);
   }
   printf("\n");
-  exit(1);
+  if (dist->pass_first) exit(1);
 
 
 }
