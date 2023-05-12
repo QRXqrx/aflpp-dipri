@@ -1673,7 +1673,7 @@ void dist_seed_select(afl_state_t *afl) {
   // TODO: reward top-k% seeds
 
   // Log
-  fprintf(dist->log_fp, "pick_seed_id %u", afl->current_entry);
+  fprintf(dist->log_fp, "pick_seed_id %u\n", afl->current_entry);
 
 }
 
