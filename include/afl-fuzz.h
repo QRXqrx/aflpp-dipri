@@ -203,7 +203,7 @@ struct queue_entry {
 
   struct queue_entry *mother;           /* queue entry this based on        */
 
-  // @DIST
+  // @DiPri
   u8     *cov_vec;                      /* Coverage vector                    */
   u8      has_dist;                     /* Has computed distance with others  */
   double  total_dist;                   /* Total accumulated distance         */
@@ -431,7 +431,7 @@ struct foreign_sync {
 
 };
 
-// @DIST
+// @DiPri: Variables start
 extern u8 *dist_mode_names[];
 extern u8 *dist_measure_names[];
 
@@ -477,6 +477,10 @@ typedef struct dist_globals {
   u32   log_cnt;
 
 } dist_globals_t;
+
+// @DiPri TODO: add variables for other reordering.
+
+// @DiPri: Variables end
 
 typedef struct afl_state {
 
@@ -836,7 +840,7 @@ typedef struct afl_state {
   u32   bitsmap_size;
 #endif
 
-  // @DIST
+  // @DiPri
   dist_globals_t dist;          /* Globals for distance-based seed selection */
 
 } afl_state_t;
@@ -1151,7 +1155,7 @@ void update_bitmap_score(afl_state_t *, struct queue_entry *);
 void cull_queue(afl_state_t *);
 u32  calculate_score(afl_state_t *, struct queue_entry *);
 
-// @DIST
+// @DiPri
 void dist_seed_prioritize(afl_state_t *);
 void dist_seed_select(afl_state_t *); // Selection after prioritizing
 void dist_record_queue(afl_state_t *);
@@ -1258,7 +1262,7 @@ void   read_foreign_testcases(afl_state_t *, int);
 void   write_crash_readme(afl_state_t *afl);
 u8     check_if_text_buf(u8 *buf, u32 len);
 
-// @DIST
+// @DiPri
 void dist_init(afl_state_t *afl);
 
 /* CmpLog */

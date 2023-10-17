@@ -563,7 +563,7 @@ void add_to_queue(afl_state_t *afl, u8 *fname, u32 len, u8 passed_det) {
   q->testcase_buf = NULL;
   q->mother = afl->queue_cur;
 
-  // @DIST
+  // @DiPri
   q->has_dist = 0; // Mark as 0 once appended into queue
 
 #ifdef INTROSPECTION
@@ -633,7 +633,7 @@ void add_to_queue(afl_state_t *afl, u8 *fname, u32 len, u8 passed_det) {
 
   }
 
-  // @DIST: Mark as has new seed
+  // @DiPri: Mark as has new seed
   afl->dist.queue_updated = 1;
 
 }
@@ -1425,7 +1425,7 @@ inline void queue_testcase_store_mem(afl_state_t *afl, struct queue_entry *q,
 
 }
 
-// @DIST
+// @DiPri: Start core logics
 double euclidean(u32 len, struct queue_entry *q1, struct queue_entry *q2) {
   double  res = 0;
   u32     hit_diff;
@@ -1495,7 +1495,7 @@ void dist_qsort(struct queue_entry **qbuf, u32 arr[], int low, int high) {
 
 }
 
-/// Prioritize seeds according to different favors of measures
+/// Prioritize seeds according to different flavors of measures
 void dist_seed_prioritize(afl_state_t *afl) {
 
   dist_globals_t *dist = &afl->dist;
@@ -1514,6 +1514,7 @@ void dist_seed_prioritize(afl_state_t *afl) {
   // Calculate average distance.
   for (u32 i = 0; i < afl->queued_items; ++i) {
 
+    // Locate newly added seeds.
     struct queue_entry *q1 = afl->queue_buf[i];
 
     // Skip old seeds, only calculate distance for freshly added seeds
@@ -1521,7 +1522,7 @@ void dist_seed_prioritize(afl_state_t *afl) {
 
     // Calculation stage
     if (likely(dist->fuzz_start)) {
-      snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "@DIST cal item-%u", i);
+      snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "@DiPri cal item-%u", i);
       afl->stage_name = afl->stage_name_buf;
       show_stats(afl);
     }
@@ -1564,7 +1565,7 @@ void dist_seed_prioritize(afl_state_t *afl) {
 
   // Sorting stage
   snprintf(afl->stage_name_buf, STAGE_BUF_SIZE,
-           "@DIST sort %u items", afl->queued_items);
+           "@DiPri sort %u items", afl->queued_items);
   afl->stage_name = afl->stage_name_buf;
   show_stats(afl);
 
@@ -1585,7 +1586,7 @@ void dist_seed_prioritize(afl_state_t *afl) {
   // Reset force
   afl->force_ui_update = 0;
 
-  // Record time used by @DIST
+  // Record time used by @DiPri
   dist->time_used += total_time;
 
   // Log
@@ -1598,7 +1599,7 @@ void dist_seed_prioritize(afl_state_t *afl) {
   // Mark new seed flag as 0 to avoid meaningless prioritization.
   dist->queue_updated = 0;
 
-  // @DIST-DEBUG
+  // @DiPri-DEBUG
 //  for (u32 i = 0 ; i < dist->prior_len; ++i) {
 //    u32 idx = dist->prior_indices[i];
 //    struct queue_entry *q = afl->queue_buf[idx];
@@ -1644,7 +1645,7 @@ void dist_seed_select(afl_state_t *afl) {
         break ;
 
       default:
-        FATAL("dist_seed_select(), unsupported @DIST mode.");
+        FATAL("dist_seed_select(), unsupported @DiPri mode.");
 
     }
 
@@ -1700,3 +1701,5 @@ void dist_record_queue(afl_state_t *afl) {
   ck_free(fpath);
 
 }
+
+// @DiPri: End core logics

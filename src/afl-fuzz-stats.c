@@ -443,7 +443,7 @@ void maybe_update_plot_file(afl_state_t *afl, u32 t_bytes, double bitmap_cvg,
      favored_not_fuzzed, saved_crashes, saved_hangs, max_depth,
      execs_per_sec, edges_found */
 
-  // @DIST, record dist time in plot_data
+  // @DiPri, record dist time in plot_data
   dist_globals_t *dist = &afl->dist;
 
   if (dist->on) {

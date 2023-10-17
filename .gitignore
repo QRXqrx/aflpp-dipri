@@ -106,7 +106,7 @@ utils/persistent_mode/test-instr
 utils/plot_ui/afl-plot-ui
 vuln_prog
 
-# @DIST
+# @DiPri
 __pycache__
 .DS_Store
 .idea

@@ -1774,7 +1774,7 @@ int main(int argc, char **argv_orig, char **envp) {
 
   }
 
-  // @DIST: Set length for coverage vector
+  // @DiPri: Set length for coverage vector
   dist_globals_t *dist = &afl->dist;
   dist->on = !!getenv("DIST_MODE");
 
@@ -2162,14 +2162,14 @@ int main(int argc, char **argv_orig, char **envp) {
   memset(afl->virgin_tmout, 255, map_size);
   memset(afl->virgin_crash, 255, map_size);
 
-  // @DIST: initialize before dry run.
+  // @DiPri: initialize before dry run.
   dist_init(afl);
 
   if (likely(!afl->afl_env.afl_no_startup_calibration)) {
 
     perform_dry_run(afl);
 
-    // @DIST
+    // @DiPri
     if (dist->on) {
       dist_seed_prioritize(afl);
       dist->pass_first = 0;
@@ -2277,7 +2277,7 @@ int main(int argc, char **argv_orig, char **envp) {
   OKF("Writing mutation introspection to '%s'", ifn);
   #endif
 
-  // @DIST: main fuzz loop
+  // @DiPri: main fuzz loop
   dist->fuzz_start = 1;
   while (likely(!afl->stop_soon)) {
 
@@ -2330,7 +2330,7 @@ int main(int argc, char **argv_orig, char **envp) {
 
       }
 
-      // @DIST: Use vanilla afl seed selection
+      // @DiPri: Use vanilla afl seed selection
       if (unlikely(afl->old_seed_selection)) {
 
         // Move entry-id advance to find the first selectable seed.
@@ -2527,7 +2527,7 @@ int main(int argc, char **argv_orig, char **envp) {
     // Seed Selection - fuzz_one() - loop
     do {
 
-      // @DIST: Non-vanilla seed selection: before fuzz_one
+      // @DiPri: Non-vanilla seed selection: before fuzz_one
       if (likely(!afl->old_seed_selection)) {
 
         if (dist->on) {
@@ -2602,7 +2602,7 @@ int main(int argc, char **argv_orig, char **envp) {
 
       if (unlikely(!afl->stop_soon && exit_1)) { afl->stop_soon = 2; }
 
-      // @DIST: Vanilla seed selection, after fuzz_one()
+      // @DiPri: Vanilla seed selection, after fuzz_one()
       if (unlikely(afl->old_seed_selection)) {
 
         // Again
@@ -2738,7 +2738,7 @@ stop_fuzzing:
 
   if (frida_afl_preload) { ck_free(frida_afl_preload); }
 
-  // @DIST: record seed information before destroying the queue
+  // @DiPri: record seed information before destroying the queue
   dist_record_queue(afl);
 
   fclose(afl->fsrv.plot_file);

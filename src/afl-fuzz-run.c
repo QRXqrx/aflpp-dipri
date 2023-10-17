@@ -381,7 +381,7 @@ static void write_with_gap(afl_state_t *afl, u8 *mem, u32 len, u32 skip_at,
 
 }
 
-// @DIST
+// @DiPri
 
 void record_cov_vec(afl_state_t *afl, struct queue_entry *q) {
 
@@ -626,7 +626,7 @@ u8 calibrate_case(afl_state_t *afl, struct queue_entry *q, u8 *use_mem,
 
   update_bitmap_score(afl, q);
 
-  // @DIST
+  // @DiPri
   record_cov_vec(afl, q);
 
   /* If this case didn't result in new output from the instrumentation, tell

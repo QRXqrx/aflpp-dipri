@@ -36,7 +36,7 @@ char *power_names[POWER_SCHEDULES_NUM] = {"explore", "mmopt", "exploit",
                                           "fast",    "coe",   "lin",
                                           "quad",    "rare",  "seek"};
 
-// @DIST
+// @DiPri
 u8 *dist_mode_names[] = {
     "VANILLA", "PERIODICAL", "ADAPTIVE"
 };

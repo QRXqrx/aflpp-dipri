@@ -402,7 +402,7 @@ static inline const char *colorfilter(const char *x) {
   } while (0)
 
 
-// @DIST
+// @DiPri
 #define DIST_LOG(x...)           \
   do {                            \
                                   \

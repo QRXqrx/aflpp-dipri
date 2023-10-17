@@ -2074,7 +2074,7 @@ void setup_dirs_fds(afl_state_t *afl) {
     afl->fsrv.plot_file = fdopen(fd, "w");
     if (!afl->fsrv.plot_file) { PFATAL("fdopen() failed"); }
 
-    // @DIST, record dist time in plot_data
+    // @DiPri, record dist time in plot_data
     if (afl->dist.on) {
       fprintf(afl->fsrv.plot_file,
               "# relative_time, cycles_done, cur_item, corpus_count, "
@@ -2999,7 +2999,7 @@ void save_cmdline(afl_state_t *afl, u32 argc, char **argv) {
 
 }
 
-// @DIST
+// @DiPri
 void dist_init(afl_state_t *afl) {
 
   dist_globals_t *dist = &afl->dist;
@@ -3007,11 +3007,11 @@ void dist_init(afl_state_t *afl) {
   dist->vec_len = 0;
 
   if (!dist->on) {
-    DIST_LOG("Oops, @DIST is off...");
+    DIST_LOG("Oops, @DiPri is off...");
     return ;
   }
 
-  DIST_LOG("@DIST is on, yeah!");
+  DIST_LOG("@DiPri is on, yeah!");
 
   // Set vector length
   dist->vec_len = afl->fsrv.real_map_size;
@@ -3072,12 +3072,12 @@ void dist_init(afl_state_t *afl) {
   // File
   u8* log_path  = alloc_printf("%s/dist_log", afl->out_dir);
   dist->log_fp  = fopen(log_path, "w");
-  if (!dist->log_fp) FATAL("@DIST, fopen(dist_log) failed!");
+  if (!dist->log_fp) FATAL("@DiPri, fopen(dist_log) failed!");
   dist->log_cnt = 0;
   ck_free(log_path);
 
   // Write sth
-  fprintf(dist->log_fp, "@DIST, mode %s, measure %s, period %llu\n",
+  fprintf(dist->log_fp, "@DiPri, mode %s, measure %s, period %llu\n",
           dist->mode_name, dist->measure_name, dist->period);
 
 }
