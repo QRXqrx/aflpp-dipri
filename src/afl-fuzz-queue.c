@@ -1494,27 +1494,10 @@ void pri_qsort(struct queue_entry **qbuf, u32 arr[], int low, int high) {
 
 }
 
-/// Distance-based
+/// Distance-based seed evaluation: calculate pri_score with distances among
+/// seeds
+void dist_seed_eval(afl_state_t *afl, dipri_globals_t *dipri) {
 
-
-/// Distance-based prioritization: reordering seeds according to various flavors
-/// of distance measures
-void dist_seed_reorder(afl_state_t *afl) {
-
-  dipri_globals_t *dipri = &afl->dipri;
-
-  if (!dipri->on) return ;
-  if (dipri->vec_len <= 0)
-    FATAL("dist_seed_reorder(), invalid vec_len (%u)", dipri->vec_len);
-
-  // Force UI update
-  afl->force_ui_update = 1;
-
-  // Record time points used by different stages
-  u64 start_time, cal_complete_time, sort_complete_time, total_time;
-  start_time = get_cur_time();
-
-  // Calculate average distance.
   for (u32 i = 0; i < afl->queued_items; ++i) {
 
     // Locate newly added seeds.
@@ -1562,6 +1545,40 @@ void dist_seed_reorder(afl_state_t *afl) {
     q1->has_dist = 1;
 
   }
+
+}
+
+
+/// @DiPri-TODO: add a general seed reorder, use function pointer?
+void dipri_seed_reorder(afl_state_t *afl) {
+
+  // Prepare stage
+
+}
+
+
+/// Distance-based prioritization: reordering seeds according to various flavors
+/// of distance measures
+void dist_seed_reorder(afl_state_t *afl) {
+
+  dipri_globals_t *dipri = &afl->dipri;
+
+  /// @DiPri-TODO: preprocess
+
+  if (!dipri->on) return ;
+  if (dipri->vec_len <= 0)
+    FATAL("dist_seed_reorder(), invalid vec_len (%u)", dipri->vec_len);
+
+  // Force UI update
+  afl->force_ui_update = 1;
+
+  // Record time points used by different stages
+  u64 start_time, cal_complete_time, sort_complete_time, total_time;
+  start_time = get_cur_time();
+
+  /// @DiPri-TODO: seed evaluation
+  // Calculate average distance.
+  dist_seed_eval(afl, dipri);
 
   // Record time used for calculating distances
   cal_complete_time = get_cur_time();
@@ -1660,7 +1677,7 @@ void dist_seed_prioritize(afl_state_t *afl) {
 
   if (unlikely(dipri->prior_cur >= dipri->prior_len)) {
 
-    // TODO: should we sanitize?
+    // @DiPri-TODO: should we sanitize?
     // FATAL("dist_seed_prioritize(), no valid seed to selection (mode `%s`).",
     //       dist_mode_names[dipri->mode]);
 
@@ -1674,7 +1691,7 @@ void dist_seed_prioritize(afl_state_t *afl) {
   afl->current_entry          = dipri->prior_indices[dipri->prior_cur++];
   afl->queue_cur              = afl->queue_buf[afl->current_entry];
   afl->queue_cur->perf_score  = calculate_score(afl, afl->queue_cur);
-  // TODO: reward top-k% seeds
+  // @DiPri-TODO: reward top-k% seeds
 
   // Log
   fprintf(dipri->log_fp, "pick_seed_id %u\n", afl->current_entry);

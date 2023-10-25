@@ -2535,7 +2535,7 @@ int main(int argc, char **argv_orig, char **envp) {
           // Use distance-based selection
           dist_seed_prioritize(afl);
 
-          // TODO: add other prioritization
+          // @DiPri-TODO: add other prioritization
 
         } else {
 

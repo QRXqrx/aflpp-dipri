@@ -3013,6 +3013,10 @@ void dist_init(afl_state_t *afl) {
 
   DiPri_LOG("@DiPri is on, yeah!");
 
+  // @DiPri-TODO: initialize for other prioritization (e.g. total coverage, filesize).
+
+  // Initialize for distance-based prioritization.
+
   // Set vector length
   dipri->vec_len = afl->fsrv.real_map_size;
 
