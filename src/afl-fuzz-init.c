@@ -2075,7 +2075,7 @@ void setup_dirs_fds(afl_state_t *afl) {
     if (!afl->fsrv.plot_file) { PFATAL("fdopen() failed"); }
 
     // @DiPri, record dist time in plot_data
-    if (afl->dist.on) {
+    if (afl->dipri.on) {
       fprintf(afl->fsrv.plot_file,
               "# relative_time, cycles_done, cur_item, corpus_count, "
               "pending_total, pending_favs, map_size, saved_crashes, "
@@ -3002,83 +3002,83 @@ void save_cmdline(afl_state_t *afl, u32 argc, char **argv) {
 // @DiPri
 void dist_init(afl_state_t *afl) {
 
-  dist_globals_t *dist = &afl->dist;
+  dipri_globals_t *dipri = &afl->dipri;
 
-  dist->vec_len = 0;
+  dipri->vec_len = 0;
 
-  if (!dist->on) {
-    DIST_LOG("Oops, @DiPri is off...");
+  if (!dipri->on) {
+    DiPri_LOG("Oops, @DiPri is off...");
     return ;
   }
 
-  DIST_LOG("@DiPri is on, yeah!");
+  DiPri_LOG("@DiPri is on, yeah!");
 
   // Set vector length
-  dist->vec_len = afl->fsrv.real_map_size;
+  dipri->vec_len = afl->fsrv.real_map_size;
 
   // Choose mode
   u8 *mode = getenv("DIST_MODE");
   if (!strcasecmp(mode, "V")) {
-    dist->mode = VANILLA;
+    dipri->mode = VANILLA;
   } else if(!strcasecmp(mode, "A")) {
-    dist->mode = ADAPTIVE;
+    dipri->mode = ADAPTIVE;
   } else {
-    dist->mode = PERIODICAL; // Use periodical mode by default
+    dipri->mode = PERIODICAL; // Use periodical mode by default
   }
 
   // Choose measure
-  dist->measure = JACCARD;
+  dipri->measure = JACCARD;
   if (!!getenv("DIST_MEASURE")) {
     u8 *measure = getenv("DIST_MEASURE");
     if (!strcasecmp(measure, "H")) {
-      dist->measure = HAMMING;
+      dipri->measure = HAMMING;
     } else if(!strcasecmp(measure, "E")) {
-      dist->measure = EUCLIDEAN;
+      dipri->measure = EUCLIDEAN;
     }
   }
 
   // Set names
-  dist->mode_name     = dist_mode_names[dist->mode];
-  dist->measure_name  = dist_measure_names[dist->measure];
+  dipri->mode_name     = dist_mode_names[dipri->mode];
+  dipri->measure_name  = dist_measure_names[dipri->measure];
 
-  if (dist->mode == PERIODICAL) {
+  if (dipri->mode == PERIODICAL) {
 
-    dist->period = DEFAULT_DIST_PERIOD;
+    dipri->period = DEFAULT_DIST_PERIOD;
 
     // Configure period from env
     if (!!getenv("DIST_PERIOD")) {
-      dist->period = strtol(getenv("DIST_PERIOD"), NULL, 10);
-      if (dist->period <= 0) {
-        DIST_LOG("Oops, invalid period (%llus), reset to default (300s)", dist->period);
-        dist->period = DEFAULT_DIST_PERIOD;
+      dipri->period = strtol(getenv("DIST_PERIOD"), NULL, 10);
+      if (dipri->period <= 0) {
+        DiPri_LOG("Oops, invalid period (%llus), reset to default (300s)", dipri->period);
+        dipri->period = DEFAULT_DIST_PERIOD;
       }
     }
 
   } else {
 
-    dist->period = 0;
+    dipri->period = 0;
 
   }
 
-  dist->fuzz_start = 0;
+  dipri->fuzz_start = 0;
 
   // Log
 
   // Screen
-  DIST_LOG("mode %s, measure %s, period %llu, vec_len %u",
-           dist->mode_name, dist->measure_name, dist->period, dist->vec_len);
+  DiPri_LOG("mode %s, measure %s, period %llu, vec_len %u",
+           dipri->mode_name, dipri->measure_name, dipri->period, dipri->vec_len);
   sleep(DIST_SLEEP_LOG);
 
   // File
-  u8* log_path  = alloc_printf("%s/dist_log", afl->out_dir);
-  dist->log_fp  = fopen(log_path, "w");
-  if (!dist->log_fp) FATAL("@DiPri, fopen(dist_log) failed!");
-  dist->log_cnt = 0;
+  u8* log_path  = alloc_printf("%s/DiPri_LOG", afl->out_dir);
+  dipri->log_fp  = fopen(log_path, "w");
+  if (!dipri->log_fp) FATAL("@DiPri, fopen(DiPri_LOG) failed!");
+  dipri->log_cnt = 0;
   ck_free(log_path);
 
   // Write sth
-  fprintf(dist->log_fp, "@DiPri, mode %s, measure %s, period %llu\n",
-          dist->mode_name, dist->measure_name, dist->period);
+  fprintf(dipri->log_fp, "@DiPri, mode %s, measure %s, period %llu\n",
+          dipri->mode_name, dipri->measure_name, dipri->period);
 
 }
 

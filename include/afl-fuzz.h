@@ -453,7 +453,7 @@ enum {
 
 };
 
-typedef struct dist_globals {
+typedef struct dipri_globals {
 
   u8  on;                 /* Whether distance-based seed selection is on  */
   u8  fuzz_start;
@@ -476,7 +476,7 @@ typedef struct dist_globals {
   FILE *log_fp;
   u32   log_cnt;
 
-} dist_globals_t;
+} dipri_globals_t;
 
 // @DiPri TODO: add variables for other reordering.
 
@@ -841,7 +841,7 @@ typedef struct afl_state {
 #endif
 
   // @DiPri
-  dist_globals_t dist;          /* Globals for distance-based seed selection */
+  dipri_globals_t dipri;  /* Globals for @DiPri */
 
 } afl_state_t;
 

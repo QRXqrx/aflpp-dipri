@@ -444,9 +444,9 @@ void maybe_update_plot_file(afl_state_t *afl, u32 t_bytes, double bitmap_cvg,
      execs_per_sec, edges_found */
 
   // @DiPri, record dist time in plot_data
-  dist_globals_t *dist = &afl->dist;
+  dipri_globals_t *dipri = &afl->dipri;
 
-  if (dist->on) {
+  if (dipri->on) {
 
     u64 relative_time = ((afl->prev_run_time + get_cur_time() - afl->start_time) / 1000);
 
@@ -458,7 +458,7 @@ void maybe_update_plot_file(afl_state_t *afl, u32 t_bytes, double bitmap_cvg,
             afl->pending_not_fuzzed, afl->pending_favored, bitmap_cvg,
             afl->saved_crashes, afl->saved_hangs, afl->max_depth, eps,
             afl->plot_prev_ed, t_bytes,
-            dist->time_used, relative_time - dist->time_used); /* ignore errors */
+            dipri->time_used, relative_time - dipri->time_used); /* ignore errors */
 
   } else {
 

@@ -385,25 +385,25 @@ static void write_with_gap(afl_state_t *afl, u8 *mem, u32 len, u32 skip_at,
 
 void record_cov_vec(afl_state_t *afl, struct queue_entry *q) {
 
-  dist_globals_t *dist = &afl->dist;
+  dipri_globals_t *dipri = &afl->dipri;
 
-  if (!dist->on) return ;
-  if (dist->vec_len <= 0)
-    FATAL("record_cov_vec(), invalid vec_len (%u)", dist->vec_len);
+  if (!dipri->on) return ;
+  if (dipri->vec_len <= 0)
+    FATAL("record_cov_vec(), invalid vec_len (%u)", dipri->vec_len);
 
-  q->cov_vec = malloc(dist->vec_len);
+  q->cov_vec = malloc(dipri->vec_len);
 
-  if (dist->measure == EUCLIDEAN) {
+  if (dipri->measure == EUCLIDEAN) {
 
     // Non 0-1 distance: just copy
 
-    memcpy(q->cov_vec, afl->fsrv.trace_bits, dist->vec_len);
+    memcpy(q->cov_vec, afl->fsrv.trace_bits, dipri->vec_len);
 
   } else {
 
     // 0-1 distance: record hit or not, not hit count
 
-    for (u32 i = 0; i < dist->vec_len; ++i)
+    for (u32 i = 0; i < dipri->vec_len; ++i)
       q->cov_vec[i] = (afl->fsrv.trace_bits[i] > 0);
 
 

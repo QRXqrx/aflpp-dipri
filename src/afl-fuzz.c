@@ -1775,8 +1775,8 @@ int main(int argc, char **argv_orig, char **envp) {
   }
 
   // @DiPri: Set length for coverage vector
-  dist_globals_t *dist = &afl->dist;
-  dist->on = !!getenv("DIST_MODE");
+  dipri_globals_t *dipri = &afl->dipri;
+  dipri->on = !!getenv("DIST_MODE");
 
   get_core_count(afl);
 
@@ -2170,10 +2170,10 @@ int main(int argc, char **argv_orig, char **envp) {
     perform_dry_run(afl);
 
     // @DiPri
-    if (dist->on) {
+    if (dipri->on) {
       dist_seed_reorder(afl);
-      dist->pass_first = 0;
-      DIST_LOG("Finish the first prioritization right after dry run.");
+      dipri->pass_first = 0;
+      DiPri_LOG("Finish the first prioritization right after dry run.");
     }
 
   } else {
@@ -2278,7 +2278,7 @@ int main(int argc, char **argv_orig, char **envp) {
   #endif
 
   // @DiPri: main fuzz loop
-  dist->fuzz_start = 1;
+  dipri->fuzz_start = 1;
   while (likely(!afl->stop_soon)) {
 
     // Seed prioritization
@@ -2530,12 +2530,12 @@ int main(int argc, char **argv_orig, char **envp) {
       // @DiPri: Non-vanilla seed selection: before fuzz_one
       if (likely(!afl->old_seed_selection)) {
 
-        if (dist->on) {
+        if (dipri->on) {
 
           // Use distance-based selection
           dist_seed_prioritize(afl);
 
-          // TODO: add other prioritize
+          // TODO: add other prioritization
 
         } else {
 

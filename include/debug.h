@@ -403,10 +403,10 @@ static inline const char *colorfilter(const char *x) {
 
 
 // @DiPri
-#define DIST_LOG(x...)           \
+#define DiPri_LOG(x...)           \
   do {                            \
                                   \
-    SAYF(cMGN "[DIST] " cRST x);   \
+    SAYF(cMGN "[DiPri] " cRST x);   \
     SAYF(cRST "\n");              \
                                   \
   } while (0)
