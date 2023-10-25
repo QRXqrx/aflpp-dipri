@@ -206,7 +206,7 @@ struct queue_entry {
   // @DiPri
   u8     *cov_vec;                      /* Coverage vector                    */
   u8      has_dist;                     /* Has computed distance with others  */
-  double  total_dist;                   /* Total accumulated distance         */
+  double  pri_score;                    /* Accordance for seed prioritization */
 
 };
 
@@ -1156,8 +1156,8 @@ void cull_queue(afl_state_t *);
 u32  calculate_score(afl_state_t *, struct queue_entry *);
 
 // @DiPri
-void dist_seed_prioritize(afl_state_t *);
-void dist_seed_select(afl_state_t *); // Selection after prioritizing
+void dist_seed_reorder(afl_state_t *);
+void dist_seed_prioritize(afl_state_t *); // Selection after prioritizing
 void dist_record_queue(afl_state_t *);
 
 /* Bitmap */

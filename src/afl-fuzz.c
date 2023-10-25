@@ -2171,7 +2171,7 @@ int main(int argc, char **argv_orig, char **envp) {
 
     // @DiPri
     if (dist->on) {
-      dist_seed_prioritize(afl);
+      dist_seed_reorder(afl);
       dist->pass_first = 0;
       DIST_LOG("Finish the first prioritization right after dry run.");
     }
@@ -2533,7 +2533,9 @@ int main(int argc, char **argv_orig, char **envp) {
         if (dist->on) {
 
           // Use distance-based selection
-          dist_seed_select(afl);
+          dist_seed_prioritize(afl);
+
+          // TODO: add other prioritize
 
         } else {
 

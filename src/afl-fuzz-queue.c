@@ -1425,7 +1425,7 @@ inline void queue_testcase_store_mem(afl_state_t *afl, struct queue_entry *q,
 
 }
 
-// @DiPri: Start core logics
+/// @DiPri: Start core logics
 double euclidean(u32 len, struct queue_entry *q1, struct queue_entry *q2) {
   double  res = 0;
   u32     hit_diff;
@@ -1453,7 +1453,7 @@ double jaccard(u32 len, struct queue_entry *q1, struct queue_entry *q2) {
   return (uset - iset) / uset;
 }
 
-/// Quick sort by distance
+/// Quick sort by pri_score
 
 void swap(u32 *a, u32 *b) {
 
@@ -1463,14 +1463,13 @@ void swap(u32 *a, u32 *b) {
 
 }
 
-// TODO: Is the order correct?
-int dist_partition(struct queue_entry **qbuf, u32 arr[], int low, int high) {
+int pri_partition(struct queue_entry **qbuf, u32 arr[], int low, int high) {
 
-  double qdist_pi = qbuf[arr[high]]->total_dist;
+  double qdist_pi = qbuf[arr[high]]->pri_score;
   int i = low - 1;
 
   for (int j = low; j <= high - 1; j++) {
-    double qdist = qbuf[arr[j]]->total_dist;
+    double qdist = qbuf[arr[j]]->pri_score;
     // Sort by descend distances. From large to small
     if (qdist > qdist_pi) {
       ++i;
@@ -1483,26 +1482,27 @@ int dist_partition(struct queue_entry **qbuf, u32 arr[], int low, int high) {
 
 }
 
-void dist_qsort(struct queue_entry **qbuf, u32 arr[], int low, int high) {
+void pri_qsort(struct queue_entry **qbuf, u32 arr[], int low, int high) {
 
   if (low < high) {
 
-    int pivot = dist_partition(qbuf, arr, low, high);
-    dist_qsort(qbuf, arr, low, pivot - 1);
-    dist_qsort(qbuf, arr, pivot + 1, high);
+    int pivot = pri_partition(qbuf, arr, low, high);
+    pri_qsort(qbuf, arr, low, pivot - 1);
+    pri_qsort(qbuf, arr, pivot + 1, high);
 
   }
 
 }
 
-/// Prioritize seeds according to different flavors of measures
-void dist_seed_prioritize(afl_state_t *afl) {
+/// Distance-based prioritization: reordering seeds according to various flavors
+/// of distance measures
+void dist_seed_reorder(afl_state_t *afl) {
 
   dist_globals_t *dist = &afl->dist;
 
   if (!dist->on) return ;
   if (dist->vec_len <= 0)
-    FATAL("dist_seed_prioritize(), invalid vec_len (%u)", dist->vec_len);
+    FATAL("dist_seed_reorder(), invalid vec_len (%u)", dist->vec_len);
 
   // Force UI update
   afl->force_ui_update = 1;
@@ -1546,12 +1546,12 @@ void dist_seed_prioritize(afl_state_t *afl) {
           qdist = jaccard(dist->vec_len, q1, q2);
           break ;
         default:
-          FATAL("dist_seed_prioritize(), unsupported distance measure!");
+          FATAL("dist_seed_reorder(), unsupported distance measure!");
       }
 
       // Update distance
-      q1->total_dist += qdist;
-      q2->total_dist += qdist;
+      q1->pri_score += qdist;
+      q2->pri_score += qdist;
 
     }
 
@@ -1574,9 +1574,9 @@ void dist_seed_prioritize(afl_state_t *afl) {
   dist->prior_cur     = 0;
   dist->prior_indices = (u32*) realloc(dist->prior_indices, dist->prior_len * sizeof(u32));
   if (unlikely(!dist->prior_indices))
-    PFATAL("dist_seed_prioritize(), fail to malloc %u to dist->prior_indices", dist->prior_len);
+    PFATAL("dist_seed_reorder(), fail to malloc %u to dist->prior_indices", dist->prior_len);
   for (u32 i = 0; i < dist->prior_len; ++i) dist->prior_indices[i] = i;
-  dist_qsort(afl->queue_buf, dist->prior_indices, 0, (int) dist->prior_len - 1);
+  pri_qsort(afl->queue_buf, dist->prior_indices, 0, (int) dist->prior_len - 1);
 
   // Record time used for sorting
   sort_complete_time  = get_cur_time();
@@ -1603,7 +1603,7 @@ void dist_seed_prioritize(afl_state_t *afl) {
 //  for (u32 i = 0 ; i < dist->prior_len; ++i) {
 //    u32 idx = dist->prior_indices[i];
 //    struct queue_entry *q = afl->queue_buf[idx];
-//    printf("(%d %d %d %lf),", i, idx, q->id, q->total_dist);
+//    printf("(%d %d %d %lf),", i, idx, q->id, q->pri_score);
 //  }
 //  printf("\n");
 //  if (dist->pass_first) exit(1);
@@ -1611,8 +1611,8 @@ void dist_seed_prioritize(afl_state_t *afl) {
 
 }
 
-/// Select after prioritizing (?)
-void dist_seed_select(afl_state_t *afl) {
+/// Prioritize at different timings.
+void dist_seed_prioritize(afl_state_t *afl) {
 
   dist_globals_t *dist = &afl->dist;
 
@@ -1624,28 +1624,28 @@ void dist_seed_select(afl_state_t *afl) {
     switch (dist->mode) {
 
       case VANILLA:
-        // Prioritize every time queue is updated
-        dist_seed_prioritize(afl);
+        // Reorder every time queue is updated
+        dist_seed_reorder(afl);
         break ;
 
       case PERIODICAL:
-        // prioritize once 1) exceeding update period, or 2) has no prioritized
+        // Reorder once 1) exceeding update period, or 2) has no prioritized
         // seeds (turn into adaptive).
         time_elapsed = (get_cur_time() - dist->last_pri_time) / 1000;
         if (unlikely((time_elapsed >= dist->period) ||
                      (dist->prior_cur >= dist->prior_len))) {
-          dist_seed_prioritize(afl);
+          dist_seed_reorder(afl);
         }
         break ;
 
       case ADAPTIVE:
-        // Prioritize when all last prioritized seeds have been processed.
+        // Reorder when all last prioritized seeds have been processed.
         if (unlikely(dist->prior_cur >= dist->prior_len))
-          dist_seed_prioritize(afl);
+          dist_seed_reorder(afl);
         break ;
 
       default:
-        FATAL("dist_seed_select(), unsupported @DiPri mode.");
+        FATAL("dist_seed_prioritize(), unsupported @DiPri mode.");
 
     }
 
@@ -1658,7 +1658,7 @@ void dist_seed_select(afl_state_t *afl) {
   if (unlikely(dist->prior_cur >= dist->prior_len)) {
 
     // TODO: should we sanitize?
-    // FATAL("dist_seed_select(), no valid seed to selection (mode `%s`).",
+    // FATAL("dist_seed_prioritize(), no valid seed to selection (mode `%s`).",
     //       dist_mode_names[dist->mode]);
 
     // Reset prior_cur in case queue are not updated.
@@ -1691,11 +1691,12 @@ void dist_record_queue(afl_state_t *afl) {
   DIST_LOG("Record dist info for queued cases to '%s'...", fpath);
 
   // Write in format: <id>,<total_dist>,<fuzz_level>,<favored>,<bitmap_size>
+  // The pri_score for distance-based prioritization is the total distance.
   fprintf(fp, "id,total_dist,fuzz_level,favored,bitmap_size\n");
   for (u32 i = 0; i < afl->queued_items; ++i) {
     struct queue_entry *q = afl->queue_buf[i];
     fprintf(fp, "%u,%lf,%u,%u,%u\n",
-            q->id, q->total_dist, q->fuzz_level, q->favored, q->bitmap_size);
+            q->id, q->pri_score, q->fuzz_level, q->favored, q->bitmap_size);
   }
 
   ck_free(fpath);
