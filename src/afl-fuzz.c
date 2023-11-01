@@ -1776,7 +1776,7 @@ int main(int argc, char **argv_orig, char **envp) {
 
   // @DiPri: Set length for coverage vector
   dipri_globals_t *dipri = &afl->dipri;
-  dipri->on = !!getenv("DIST_MODE");
+  dipri->on = !!getenv("DIPRI_MODE");
 
   get_core_count(afl);
 

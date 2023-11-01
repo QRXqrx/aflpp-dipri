@@ -3013,48 +3013,75 @@ void dipri_init(afl_state_t *afl) {
 
   DiPri_LOG("@DiPri is on, yeah!");
 
-  // @DiPri-TODO: initialize for other prioritization (e.g. total coverage, filesize).
+  // Choose seed evaluation criterion.
+  dipri->eval_type = DIST; // Use distance-based seed evaluation by default
+  u8 *eval_type = getenv("DIPRI_EVAL_TYPE");
+  if (eval_type != NULL) {
+    if (!strcasecmp(eval_type, "bitmap") ||
+        !strcasecmp(eval_type, "bitmap_size") ||
+        !strcasecmp(eval_type, "coverage") || !strcasecmp(eval_type, "cov"))
+      dipri->eval_type = BITMAP_SIZE;
+    else if(!strcasecmp(eval_type, "time") ||
+             !strcasecmp(eval_type, "exec_us") ||
+             !strcasecmp(eval_type, "exec"))
+      dipri->eval_type = EXEC_US;
+    else if (!strcasecmp(eval_type, "handicap"))
+      dipri->eval_type = HANDICAP;
+    else if (!strcasecmp(eval_type, "depth"))
+      dipri->eval_type = DEPTH;
+    else if (!strcasecmp(eval_type, "len") ||
+             !strcasecmp(eval_type, "input_size"))
+      dipri->eval_type = LEN;
+      DiPri_LOG("Unrecognized mode, use default.");
+  }
 
-  // Initialize for distance-based prioritization.
+  if (dipri->eval_type == DIST)
+      DiPri_LOG("Use distance-based seed evaluation :-)");
+  else
+      DiPri_LOG("Fine, we will evaluating seeds by an intrinsic field.");
+
+
+  /* Initialize for @DiPri prioritization. */
 
   // Set vector length
   dipri->vec_len = afl->fsrv.real_map_size;
 
   // Choose mode
-  u8 *mode = getenv("DIST_MODE");
-  if (!strcasecmp(mode, "V")) {
-    dipri->mode = VANILLA;
-  } else if(!strcasecmp(mode, "A")) {
-    dipri->mode = ADAPTIVE;
-  } else {
-    dipri->mode = PERIODICAL; // Use periodical mode by default
+  dipri->mode = VANILLA; // Use vanilla mode by default
+  u8 *mode = getenv("DIPRI_MODE");
+  if (mode != NULL) {
+    if (!strcasecmp(mode, "P"))
+      dipri->mode = PERIODICAL;
+    else if(!strcasecmp(mode, "A"))
+      dipri->mode = ADAPTIVE;
   }
 
   // Choose measure
-  dipri->measure = JACCARD;
-  if (!!getenv("DIST_MEASURE")) {
-    u8 *measure = getenv("DIST_MEASURE");
-    if (!strcasecmp(measure, "H")) {
-      dipri->measure = HAMMING;
-    } else if(!strcasecmp(measure, "E")) {
+  dipri->measure = HAMMING; // Use Hamming mode by default
+  u8 *measure = getenv("DIPRI_MEASURE");
+  if (measure != NULL) {
+    if (!strcasecmp(measure, "J"))
+      dipri->measure = JACCARD;
+    else if(!strcasecmp(measure, "E"))
       dipri->measure = EUCLIDEAN;
-    }
   }
 
   // Set names
-  dipri->mode_name     = dist_mode_names[dipri->mode];
-  dipri->measure_name  = dist_measure_names[dipri->measure];
+  dipri->eval_criterion = dipri_eval_criteria[dipri->eval_type];
+  dipri->mode_name      = dipri_mode_names[dipri->mode];
+  dipri->measure_name   = dipri_measure_names[dipri->measure];
 
   if (dipri->mode == PERIODICAL) {
 
-    dipri->period = DEFAULT_DIST_PERIOD;
+    dipri->period = DEFAULT_DIPRI_PERIOD;
 
     // Configure period from env
-    if (!!getenv("DIST_PERIOD")) {
-      dipri->period = strtol(getenv("DIST_PERIOD"), NULL, 10);
+    u8* period_str = getenv("DIPRI_PERIOD");
+    if (period_str != NULL) {
+      dipri->period = strtol(period_str, NULL, 10);
       if (dipri->period <= 0) {
-        DiPri_LOG("Oops, invalid period (%llus), reset to default (300s)", dipri->period);
-        dipri->period = DEFAULT_DIST_PERIOD;
+        DiPri_LOG("Oops, invalid period (%llus), reset to default (60s)", dipri->period);
+        dipri->period = DEFAULT_DIPRI_PERIOD;
       }
     }
 
@@ -3066,12 +3093,13 @@ void dipri_init(afl_state_t *afl) {
 
   dipri->fuzz_start = 0;
 
-  // Log
+  /* Configure log */
 
   // Screen
-  DiPri_LOG("mode %s, measure %s, period %llu, vec_len %u",
-           dipri->mode_name, dipri->measure_name, dipri->period, dipri->vec_len);
-  sleep(DIST_SLEEP_LOG);
+  DiPri_LOG("eval_type %s, mode %s, measure %s, period %llu, vec_len %u",
+            dipri->eval_criterion, dipri->mode_name,
+            dipri->measure_name, dipri->period, dipri->vec_len);
+  sleep(DIPRI_SLEEP_LOG);
 
   // File
   u8* log_path  = alloc_printf("%s/DiPri_LOG", afl->out_dir);

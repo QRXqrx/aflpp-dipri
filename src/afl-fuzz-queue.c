@@ -1586,6 +1586,9 @@ void intrinsic_field_seed_eval(afl_state_t *afl) {
       case DEPTH:
         q->pri_score = (double) q->depth;
         break;
+      case LEN:
+        q->pri_score = (double) q->len;
+        break;
       default:
         FATAL("@DiPri, unsupported eval type (intrinsic field).");
     }
@@ -1596,7 +1599,6 @@ void intrinsic_field_seed_eval(afl_state_t *afl) {
   }
 
 }
-
 
 
 /// Distance-based prioritization: reordering seeds according to various flavors
@@ -1640,7 +1642,7 @@ void dipri_seed_reorder(afl_state_t *afl) {
   dipri->prior_cur     = 0;
   dipri->prior_indices = (u32*) realloc(dipri->prior_indices, dipri->prior_len * sizeof(u32));
   if (unlikely(!dipri->prior_indices))
-    PFATAL("dipri_seed_reorder(), fail to malloc %u to dipri->prior_indices", dipri->prior_len);
+    PFATAL("dipri_seed_reorder(), fail to realloc %u to dipri->prior_indices", dipri->prior_len);
   for (u32 i = 0; i < dipri->prior_len; ++i) dipri->prior_indices[i] = i;
   pri_qsort(afl->queue_buf, dipri->prior_indices, 0, (int) dipri->prior_len - 1);
 
@@ -1725,7 +1727,7 @@ void dipri_seed_prioritize(afl_state_t *afl) {
 
     // @DiPri-TODO: should we sanitize?
     // FATAL("dipri_seed_prioritize(), no valid seed to selection (mode `%s`).",
-    //       dist_mode_names[dipri->mode]);
+    //       dipri_mode_names[dipri->mode]);
 
     // Reset prior_cur in case queue are not updated.
     dipri->prior_cur = 0;

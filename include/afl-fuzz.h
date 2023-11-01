@@ -432,8 +432,9 @@ struct foreign_sync {
 };
 
 // @DiPri: Variables start
-extern u8 *dist_mode_names[];
-extern u8 *dist_measure_names[];
+extern u8 *dipri_eval_criteria[];
+extern u8 *dipri_mode_names[];
+extern u8 *dipri_measure_names[];
 
 // Distance-based seed prioritization modes
 enum {
@@ -467,6 +468,7 @@ enum {
   EXEC_US,        /* Evaluate by execution time           */
   HANDICAP,       /* Evaluate by the timing the seed come */
   DEPTH,          /* Evaluate by input depth              */
+  LEN,            /* Evaluate by input filesize           */
 
 };
 
@@ -478,6 +480,7 @@ typedef struct dipri_globals {
   u8  eval_type;          /* Criterion used in seed evaluation            */
   u8  mode;               /* Vanilla, Periodical, Adaptive                */
   u8  measure;            /* Euclidean, Hamming, Jaccard                  */
+  u8 *eval_criterion;
   u8 *mode_name;
   u8 *measure_name;
   u32 vec_len;            /* Length of cov vec, equals to real_map_size   */

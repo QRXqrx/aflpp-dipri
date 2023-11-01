@@ -37,11 +37,15 @@ char *power_names[POWER_SCHEDULES_NUM] = {"explore", "mmopt", "exploit",
                                           "quad",    "rare",  "seek"};
 
 // @DiPri
-u8 *dist_mode_names[] = {
+u8 *dipri_eval_criteria[] = {
+    "DIST", "BITMAP_SIZE", "EXEC_US",
+    "HANDICAP", "DEPTH", "LEN"
+};
+u8 *dipri_mode_names[] = {
     "VANILLA", "PERIODICAL", "ADAPTIVE"
 };
 
-u8 *dist_measure_names[] = {
+u8 *dipri_measure_names[] = {
     "EUCLIDEAN", "HAMMING", "JACCARD"
 };
 
