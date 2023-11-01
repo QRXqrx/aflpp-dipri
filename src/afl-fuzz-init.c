@@ -3000,7 +3000,7 @@ void save_cmdline(afl_state_t *afl, u32 argc, char **argv) {
 }
 
 // @DiPri
-void dist_init(afl_state_t *afl) {
+void dipri_init(afl_state_t *afl) {
 
   dipri_globals_t *dipri = &afl->dipri;
 

@@ -2163,7 +2163,7 @@ int main(int argc, char **argv_orig, char **envp) {
   memset(afl->virgin_crash, 255, map_size);
 
   // @DiPri: initialize before dry run.
-  dist_init(afl);
+  dipri_init(afl);
 
   if (likely(!afl->afl_env.afl_no_startup_calibration)) {
 
@@ -2171,7 +2171,7 @@ int main(int argc, char **argv_orig, char **envp) {
 
     // @DiPri
     if (dipri->on) {
-      dist_seed_reorder(afl);
+      dipri_seed_reorder(afl);
       dipri->pass_first = 0;
       DiPri_LOG("Finish the first prioritization right after dry run.");
     }
@@ -2533,7 +2533,7 @@ int main(int argc, char **argv_orig, char **envp) {
         if (dipri->on) {
 
           // Use distance-based selection
-          dist_seed_prioritize(afl);
+          dipri_seed_prioritize(afl);
 
           // @DiPri-TODO: add other prioritization
 
@@ -2741,7 +2741,7 @@ stop_fuzzing:
   if (frida_afl_preload) { ck_free(frida_afl_preload); }
 
   // @DiPri: record seed information before destroying the queue
-  dist_record_queue(afl);
+  dipri_record_queue(afl);
 
   fclose(afl->fsrv.plot_file);
   destroy_queue(afl);

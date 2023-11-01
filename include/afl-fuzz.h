@@ -182,7 +182,7 @@ struct queue_entry {
 
   u64 exec_us,                          /* Execution time (us)              */
       handicap,                         /* Number of queue cycles behind    */
-      depth,                            /* Path depth                       */
+      depth,                            /* Path depth                       */  // @DiPri: looks like the round of fuzzing
       exec_cksum,                       /* Checksum of the execution trace  */
       stats_mutated;                    /* stats: # of mutations performed  */
 
@@ -205,7 +205,7 @@ struct queue_entry {
 
   // @DiPri
   u8     *cov_vec;                      /* Coverage vector                    */
-  u8      has_dist;                     /* Has computed distance with others  */
+  u8      has_pri_score;                /* Has computed distance with others  */
   double  pri_score;                    /* Accordance for seed prioritization */
 
 };
@@ -453,11 +453,29 @@ enum {
 
 };
 
+// Seed evaluation criteria/types.
+enum {
+
+  DIST,           /* Distance-based seed evaluation */
+
+  /*
+   * Intrinsic properties of AFL++ queue_entry
+   * @see calculate_score()
+   */
+
+  BITMAP_SIZE,    /* Evaluate by achieved coverage        */
+  EXEC_US,        /* Evaluate by execution time           */
+  HANDICAP,       /* Evaluate by the timing the seed come */
+  DEPTH,          /* Evaluate by input depth              */
+
+};
+
 typedef struct dipri_globals {
 
   u8  on;                 /* Whether distance-based seed selection is on  */
   u8  fuzz_start;
   u8  queue_updated;      /* Whether seed queue is updated                */
+  u8  eval_type;          /* Criterion used in seed evaluation            */
   u8  mode;               /* Vanilla, Periodical, Adaptive                */
   u8  measure;            /* Euclidean, Hamming, Jaccard                  */
   u8 *mode_name;
@@ -477,8 +495,6 @@ typedef struct dipri_globals {
   u32   log_cnt;
 
 } dipri_globals_t;
-
-// @DiPri TODO: add variables for other reordering.
 
 // @DiPri: Variables end
 
@@ -1156,9 +1172,9 @@ void cull_queue(afl_state_t *);
 u32  calculate_score(afl_state_t *, struct queue_entry *);
 
 // @DiPri
-void dist_seed_reorder(afl_state_t *);
-void dist_seed_prioritize(afl_state_t *); // Selection after prioritizing
-void dist_record_queue(afl_state_t *);
+void dipri_seed_reorder(afl_state_t *);
+void dipri_seed_prioritize(afl_state_t *); // Selection after prioritizing
+void dipri_record_queue(afl_state_t *);
 
 /* Bitmap */
 
@@ -1263,7 +1279,7 @@ void   write_crash_readme(afl_state_t *afl);
 u8     check_if_text_buf(u8 *buf, u32 len);
 
 // @DiPri
-void dist_init(afl_state_t *afl);
+void dipri_init(afl_state_t *afl);
 
 /* CmpLog */
 

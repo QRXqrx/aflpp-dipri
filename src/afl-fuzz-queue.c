@@ -564,7 +564,7 @@ void add_to_queue(afl_state_t *afl, u8 *fname, u32 len, u8 passed_det) {
   q->mother = afl->queue_cur;
 
   // @DiPri
-  q->has_dist = 0; // Mark as 0 once appended into queue
+  q->has_pri_score = 0; // Mark as 0 once appended into queue
 
 #ifdef INTROSPECTION
   q->bitsmap_size = afl->bitsmap_size;
@@ -1433,7 +1433,7 @@ double euclidean(u32 len, struct queue_entry *q1, struct queue_entry *q2) {
     hit_diff = q1->cov_vec[i] - q2->cov_vec[i];
     res += (hit_diff * hit_diff);
   }
-  return sqrt(res) / len;
+  return res / len;
 }
 
 double hamming(u32 len, struct queue_entry *q1, struct queue_entry *q2) {
@@ -1494,9 +1494,12 @@ void pri_qsort(struct queue_entry **qbuf, u32 arr[], int low, int high) {
 
 }
 
-/// Distance-based seed evaluation: calculate pri_score with distances among
-/// seeds
-void dist_seed_eval(afl_state_t *afl, dipri_globals_t *dipri) {
+/* Different flavors of seed evaluations */
+
+/// Distance-based seed evaluation: calculate pri_score with seed distances
+void dist_seed_eval(afl_state_t *afl) {
+
+  dipri_globals_t *dipri = &afl->dipri;
 
   for (u32 i = 0; i < afl->queued_items; ++i) {
 
@@ -1504,11 +1507,11 @@ void dist_seed_eval(afl_state_t *afl, dipri_globals_t *dipri) {
     struct queue_entry *q1 = afl->queue_buf[i];
 
     // Skip old seeds, only calculate distance for freshly added seeds
-    if (q1->has_dist) continue ;
+    if (q1->has_pri_score) continue ;
 
-    // Calculation stage
+    // Show evaluation stage
     if (likely(dipri->fuzz_start)) {
-      snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "@DiPri cal item-%u", i);
+      snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "@DiPri eval item-%u", i);
       afl->stage_name = afl->stage_name_buf;
       show_stats(afl);
     }
@@ -1532,7 +1535,7 @@ void dist_seed_eval(afl_state_t *afl, dipri_globals_t *dipri) {
           qdist = jaccard(dipri->vec_len, q1, q2);
           break ;
         default:
-          FATAL("dist_seed_reorder(), unsupported distance measure!");
+          FATAL("dipri_seed_reorder(), unsupported distance measure!");
       }
 
       // Update distance
@@ -1542,32 +1545,71 @@ void dist_seed_eval(afl_state_t *afl, dipri_globals_t *dipri) {
     }
 
     // Mark as 1
-    q1->has_dist = 1;
+    q1->has_pri_score = 1;
+
+  }
+
+}
+
+/// Evaluate seeds by intrinsic properties of queue entry. Note that these
+/// fields also used in the default power scheduling of AFL++.
+/// @see calculate_score()
+void intrinsic_field_seed_eval(afl_state_t *afl) {
+
+  dipri_globals_t *dipri = &afl->dipri;
+
+  for (u32 i = 0; i < afl->queued_items; ++i) {
+
+    // Locate newly added seeds.
+    struct queue_entry *q = afl->queue_buf[i];
+
+    // Skip old seeds, only attach priority score for freshly added seeds
+    if (q->has_pri_score) continue ;
+
+    // Show evaluation stage
+    if (likely(dipri->fuzz_start)) {
+      snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "@DiPri eval item-%u", i);
+      afl->stage_name = afl->stage_name_buf;
+      show_stats(afl);
+    }
+
+    // Tag intrinsic field as the priority score
+    switch (dipri->eval_type) {
+      case BITMAP_SIZE:
+        q->pri_score = (double) q->bitmap_size;
+      case EXEC_US:
+        q->pri_score = (double) q->exec_us;
+        break;
+      case HANDICAP:
+        q->pri_score = (double) q->handicap;
+        break;
+      case DEPTH:
+        q->pri_score = (double) q->depth;
+        break;
+      default:
+        FATAL("@DiPri, unsupported eval type (intrinsic field).");
+    }
+
+    // Mark as 1
+    q->has_pri_score = 1;
 
   }
 
 }
 
 
-/// @DiPri-TODO: add a general seed reorder, use function pointer?
-void dipri_seed_reorder(afl_state_t *afl) {
-
-  // Prepare stage
-
-}
-
 
 /// Distance-based prioritization: reordering seeds according to various flavors
 /// of distance measures
-void dist_seed_reorder(afl_state_t *afl) {
+void dipri_seed_reorder(afl_state_t *afl) {
 
   dipri_globals_t *dipri = &afl->dipri;
 
-  /// @DiPri-TODO: preprocess
+  /* Preprocess */
 
   if (!dipri->on) return ;
   if (dipri->vec_len <= 0)
-    FATAL("dist_seed_reorder(), invalid vec_len (%u)", dipri->vec_len);
+    FATAL("dipri_seed_reorder(), invalid vec_len (%u)", dipri->vec_len);
 
   // Force UI update
   afl->force_ui_update = 1;
@@ -1576,9 +1618,13 @@ void dist_seed_reorder(afl_state_t *afl) {
   u64 start_time, cal_complete_time, sort_complete_time, total_time;
   start_time = get_cur_time();
 
-  /// @DiPri-TODO: seed evaluation
-  // Calculate average distance.
-  dist_seed_eval(afl, dipri);
+  /* Prioritization: Seed Evaluation + Seed Reordering */
+
+  // Choose the flavor of seed evaluation
+  if (DIST == dipri->eval_type)
+    dist_seed_eval(afl);
+  else
+    intrinsic_field_seed_eval(afl);
 
   // Record time used for calculating distances
   cal_complete_time = get_cur_time();
@@ -1594,7 +1640,7 @@ void dist_seed_reorder(afl_state_t *afl) {
   dipri->prior_cur     = 0;
   dipri->prior_indices = (u32*) realloc(dipri->prior_indices, dipri->prior_len * sizeof(u32));
   if (unlikely(!dipri->prior_indices))
-    PFATAL("dist_seed_reorder(), fail to malloc %u to dipri->prior_indices", dipri->prior_len);
+    PFATAL("dipri_seed_reorder(), fail to malloc %u to dipri->prior_indices", dipri->prior_len);
   for (u32 i = 0; i < dipri->prior_len; ++i) dipri->prior_indices[i] = i;
   pri_qsort(afl->queue_buf, dipri->prior_indices, 0, (int) dipri->prior_len - 1);
 
@@ -1632,7 +1678,7 @@ void dist_seed_reorder(afl_state_t *afl) {
 }
 
 /// Prioritize at different timings.
-void dist_seed_prioritize(afl_state_t *afl) {
+void dipri_seed_prioritize(afl_state_t *afl) {
 
   dipri_globals_t *dipri = &afl->dipri;
 
@@ -1645,7 +1691,7 @@ void dist_seed_prioritize(afl_state_t *afl) {
 
       case VANILLA:
         // Reorder every time queue is updated
-        dist_seed_reorder(afl);
+        dipri_seed_reorder(afl);
         break ;
 
       case PERIODICAL:
@@ -1654,18 +1700,18 @@ void dist_seed_prioritize(afl_state_t *afl) {
         time_elapsed = (get_cur_time() - dipri->last_pri_time) / 1000;
         if (unlikely((time_elapsed >= dipri->period) ||
                      (dipri->prior_cur >= dipri->prior_len))) {
-          dist_seed_reorder(afl);
+          dipri_seed_reorder(afl);
         }
         break ;
 
       case ADAPTIVE:
         // Reorder when all last prioritized seeds have been processed.
         if (unlikely(dipri->prior_cur >= dipri->prior_len))
-          dist_seed_reorder(afl);
+          dipri_seed_reorder(afl);
         break ;
 
       default:
-        FATAL("dist_seed_prioritize(), unsupported @DiPri mode.");
+        FATAL("dipri_seed_prioritize(), unsupported @DiPri mode.");
 
     }
 
@@ -1678,7 +1724,7 @@ void dist_seed_prioritize(afl_state_t *afl) {
   if (unlikely(dipri->prior_cur >= dipri->prior_len)) {
 
     // @DiPri-TODO: should we sanitize?
-    // FATAL("dist_seed_prioritize(), no valid seed to selection (mode `%s`).",
+    // FATAL("dipri_seed_prioritize(), no valid seed to selection (mode `%s`).",
     //       dist_mode_names[dipri->mode]);
 
     // Reset prior_cur in case queue are not updated.
@@ -1698,7 +1744,7 @@ void dist_seed_prioritize(afl_state_t *afl) {
 
 }
 
-void dist_record_queue(afl_state_t *afl) {
+void dipri_record_queue(afl_state_t *afl) {
 
   u8    *fpath  = NULL;
   FILE  *fp     = NULL;
