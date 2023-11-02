@@ -3115,8 +3115,8 @@ void dipri_init(afl_state_t *afl) {
   ck_free(log_path);
 
   // Write sth
-  fprintf(dipri->log_fp, "@DiPri, mode %s, measure %s, period %llu\n",
-          dipri->mode_name, dipri->measure_name, dipri->period);
+//  fprintf(dipri->log_fp, "@DiPri, mode %s, measure %s, period %llu\n",
+//          dipri->mode_name, dipri->measure_name, dipri->period);
 
 }
 
