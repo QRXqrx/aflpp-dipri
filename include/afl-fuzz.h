@@ -492,7 +492,7 @@ typedef struct dipri_globals {
 
   u64   last_pri_time;    /* Last time we prioritize, used in PERIODICAL  */
   u64   period;           /* Period for prioritizing, used in PERIODICAL  */
-  u64   time_used;        /* Total time used for prioritization           */
+  u64   time_used;        /* Total time used for prioritization (ms)      */
 
   FILE *log_fp;
   u64   log_cnt;

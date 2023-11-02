@@ -1637,7 +1637,7 @@ void dipri_seed_reorder(afl_state_t *afl) {
   afl->stage_name = afl->stage_name_buf;
   show_stats(afl);
 
-  // Sort by distance
+  // Sort by prior_score
   dipri->prior_len     = afl->queued_items;
   dipri->prior_cur     = 0;
   dipri->prior_indices = (u32*) realloc(dipri->prior_indices, dipri->prior_len * sizeof(u32));
@@ -1647,9 +1647,9 @@ void dipri_seed_reorder(afl_state_t *afl) {
   pri_qsort(afl->queue_buf, dipri->prior_indices, 0, (int) dipri->prior_len - 1);
 
   // Record time used for sorting
-  sort_complete_time  = get_cur_time();
-  total_time          = ((sort_complete_time - start_time) / 1000);
-  dipri->last_pri_time = sort_complete_time;
+  sort_complete_time    = get_cur_time();
+  total_time            = sort_complete_time - start_time;
+  dipri->last_pri_time  = sort_complete_time;
 
   // Reset force
   afl->force_ui_update = 0;
@@ -1661,9 +1661,9 @@ void dipri_seed_reorder(afl_state_t *afl) {
   fprintf(dipri->log_fp, "reorder_cnt %llu, queued_items %u, "
           "prior_time %llu, total_time %llu, cal_time %llu, sort_time %llu\n",
           ++dipri->log_cnt, afl->queued_items,
-          ((dipri->last_pri_time - afl->start_time) / 1000) - total_time,
-          total_time, ((cal_complete_time - start_time) / 1000),
-          ((sort_complete_time - cal_complete_time) / 1000));
+          (dipri->last_pri_time - afl->start_time - total_time),
+          total_time, (cal_complete_time - start_time),
+          (sort_complete_time - cal_complete_time));
 
   // Mark new seed flag as 0 to avoid meaningless prioritization.
   dipri->queue_updated = 0;
