@@ -443,27 +443,29 @@ void maybe_update_plot_file(afl_state_t *afl, u32 t_bytes, double bitmap_cvg,
      favored_not_fuzzed, saved_crashes, saved_hangs, max_depth,
      execs_per_sec, edges_found */
 
-  // @DiPri, record dist time in plot_data
+  // @DiPri, record time used by prioritization in plot_data
   dipri_globals_t *dipri = &afl->dipri;
 
-  if (dipri->on && !dipri->doing_reorder) {
+  if (dipri->on) {
 
-    FATAL("@DiPri, going to update plot data");
+    if (!dipri->doing_reorder) { // Do not update plot file while reordering
 
-    u64 relative_time_millis =
-        afl->prev_run_time + get_cur_time() - afl->start_time;
+      u64 relative_time_millis =
+          afl->prev_run_time + get_cur_time() - afl->start_time;
 
-    fprintf(afl->fsrv.plot_file,
-            "%llu, %llu, %u, %u, %u, %u, %0.02f%%, %llu, %llu, %u, %0.02f, %llu, "
-            "%u, %llu, %llu\n",
-            (relative_time_millis / 1000),
-            afl->queue_cycle - 1, afl->current_entry, afl->queued_items,
-            afl->pending_not_fuzzed, afl->pending_favored, bitmap_cvg,
-            afl->saved_crashes, afl->saved_hangs, afl->max_depth, eps,
-            afl->plot_prev_ed, t_bytes,
-            // @DiPri-time
-            dipri->time_used,
-            relative_time_millis - dipri->time_used); /* ignore errors */
+      fprintf(afl->fsrv.plot_file,
+              "%llu, %llu, %u, %u, %u, %u, %0.02f%%, %llu, %llu, %u, %0.02f, %llu, "
+              "%u, %llu, %llu\n",
+              (relative_time_millis / 1000),
+              afl->queue_cycle - 1, afl->current_entry, afl->queued_items,
+              afl->pending_not_fuzzed, afl->pending_favored, bitmap_cvg,
+              afl->saved_crashes, afl->saved_hangs, afl->max_depth, eps,
+              afl->plot_prev_ed, t_bytes,
+              // @DiPri-time
+              dipri->time_used,
+              relative_time_millis - dipri->time_used); /* ignore errors */
+
+    }
 
   } else {
 
