@@ -409,6 +409,9 @@ void write_queue_stats(afl_state_t *afl) {
 void maybe_update_plot_file(afl_state_t *afl, u32 t_bytes, double bitmap_cvg,
                             double eps) {
 
+  // @DiPri
+  dipri_globals_t *dipri = &afl->dipri;
+
   if (unlikely(!afl->force_ui_update &&
                (afl->stop_soon ||
                 (afl->plot_prev_qp == afl->queued_items &&
@@ -419,7 +422,9 @@ void maybe_update_plot_file(afl_state_t *afl, u32 t_bytes, double bitmap_cvg,
                  afl->plot_prev_uc == afl->saved_crashes &&
                  afl->plot_prev_uh == afl->saved_hangs &&
                  afl->plot_prev_md == afl->max_depth &&
-                 afl->plot_prev_ed == afl->fsrv.total_execs) ||
+                 afl->plot_prev_ed == afl->fsrv.total_execs &&
+                 // @DiPri data
+                 dipri->plot_prev_lc == dipri->log_cnt) ||
                 !afl->queue_cycle ||
                 get_cur_time() - afl->start_time <= 60000))) {
 
@@ -437,6 +442,9 @@ void maybe_update_plot_file(afl_state_t *afl, u32 t_bytes, double bitmap_cvg,
   afl->plot_prev_md = afl->max_depth;
   afl->plot_prev_ed = afl->fsrv.total_execs;
 
+  // @DiPri
+  dipri->plot_prev_lc = dipri->log_cnt;
+
   /* Fields in the file:
 
      relative_time, afl->cycles_done, cur_item, corpus_count, corpus_not_fuzzed,
@@ -444,8 +452,6 @@ void maybe_update_plot_file(afl_state_t *afl, u32 t_bytes, double bitmap_cvg,
      execs_per_sec, edges_found */
 
   // @DiPri, record time used by prioritization in plot_data
-  dipri_globals_t *dipri = &afl->dipri;
-
   if (dipri->on) {
 
     if (!dipri->doing_reorder) { // Do not update plot file while reordering
@@ -455,13 +461,14 @@ void maybe_update_plot_file(afl_state_t *afl, u32 t_bytes, double bitmap_cvg,
 
       fprintf(afl->fsrv.plot_file,
               "%llu, %llu, %u, %u, %u, %u, %0.02f%%, %llu, %llu, %u, %0.02f, %llu, "
-              "%u, %llu, %llu\n",
+              "%u, %llu, %llu, %llu\n",
               (relative_time_millis / 1000),
               afl->queue_cycle - 1, afl->current_entry, afl->queued_items,
               afl->pending_not_fuzzed, afl->pending_favored, bitmap_cvg,
               afl->saved_crashes, afl->saved_hangs, afl->max_depth, eps,
               afl->plot_prev_ed, t_bytes,
               // @DiPri-time
+              dipri->log_cnt,
               dipri->time_used,
               relative_time_millis - dipri->time_used); /* ignore errors */
 
