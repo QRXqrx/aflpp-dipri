@@ -448,6 +448,8 @@ void maybe_update_plot_file(afl_state_t *afl, u32 t_bytes, double bitmap_cvg,
 
   if (dipri->on && !dipri->doing_reorder) {
 
+    FATAL("@DiPri, going to update plot data");
+
     u64 relative_time_millis =
         afl->prev_run_time + get_cur_time() - afl->start_time;
 
