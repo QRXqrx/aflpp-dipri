@@ -496,6 +496,7 @@ typedef struct dipri_globals {
 
   FILE *log_fp;
   u64   log_cnt;
+  u8    update_plot_file;
 
 } dipri_globals_t;
 

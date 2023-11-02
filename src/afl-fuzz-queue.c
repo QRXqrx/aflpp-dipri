@@ -1613,8 +1613,9 @@ void dipri_seed_reorder(afl_state_t *afl) {
   if (dipri->vec_len <= 0)
     FATAL("dipri_seed_reorder(), invalid vec_len (%u)", dipri->vec_len);
 
-  // Force UI update
-  afl->force_ui_update = 1;
+  // Force UI update, but do not update plot_data
+  afl->force_ui_update    = 1;
+  dipri->update_plot_file = 0;
 
   // Record time points used by different stages
   u64 start_time, cal_complete_time, sort_complete_time, total_time;
@@ -1651,8 +1652,9 @@ void dipri_seed_reorder(afl_state_t *afl) {
   total_time            = sort_complete_time - start_time;
   dipri->last_pri_time  = sort_complete_time;
 
-  // Reset force
-  afl->force_ui_update = 0;
+  // Reset force TODO: maybe update plot file now?
+  afl->force_ui_update    = 0;
+  dipri->update_plot_file = 1;
 
   // Record time used by @DiPri
   dipri->time_used += total_time;

@@ -446,7 +446,7 @@ void maybe_update_plot_file(afl_state_t *afl, u32 t_bytes, double bitmap_cvg,
   // @DiPri, record dist time in plot_data
   dipri_globals_t *dipri = &afl->dipri;
 
-  if (dipri->on) {
+  if (dipri->on && dipri->update_plot_file) {
 
     u64 relative_time_millis =
         afl->prev_run_time + get_cur_time() - afl->start_time;
