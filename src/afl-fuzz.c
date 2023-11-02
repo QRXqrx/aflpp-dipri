@@ -2174,8 +2174,6 @@ int main(int argc, char **argv_orig, char **envp) {
       dipri_seed_reorder(afl);
       dipri->pass_first = 0;
       DiPri_LOG("Finish the first prioritization right after dry run.");
-      // @DiPri-debug
-      FATAL("@DiPri, dry-run dipri_seed_reorder();");
     }
 
   } else {
@@ -2243,8 +2241,6 @@ int main(int argc, char **argv_orig, char **envp) {
 
   if (!afl->non_instrumented_mode) { write_stats_file(afl, 0, 0, 0, 0); }
   maybe_update_plot_file(afl, 0, 0, 0);
-  // @DiPri-debug
-//  FATAL("@DiPri, maybe_update_plot_file(afl, 0, 0, 0);");
   save_auto(afl);
 
   if (afl->stop_soon) { goto stop_fuzzing; }
