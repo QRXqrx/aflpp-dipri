@@ -3032,7 +3032,8 @@ void dipri_init(afl_state_t *afl) {
     else if (!strcasecmp(eval_type, "len") ||
              !strcasecmp(eval_type, "input_size"))
       dipri->eval_type = LEN;
-      DiPri_LOG("Unrecognized mode, use default.");
+    else
+      DiPri_LOG("Unrecognized eval criterion, use default.");
   }
 
   if (dipri->eval_type == DIST)
@@ -3096,9 +3097,14 @@ void dipri_init(afl_state_t *afl) {
   /* Configure log */
 
   // Screen
-  DiPri_LOG("eval_type %s, mode %s, measure %s, period %llu, vec_len %u",
-            dipri->eval_criterion, dipri->mode_name,
-            dipri->measure_name, dipri->period, dipri->vec_len);
+  if (dipri->eval_type == DIST)
+    DiPri_LOG("eval_type %s, mode %s, measure %s, period %llu, vec_len %u",
+              dipri->eval_criterion, dipri->mode_name,
+              dipri->measure_name, dipri->period, dipri->vec_len);
+  else
+    DiPri_LOG("eval_type %s, mode %s, period %llu, vec_len %u",
+              dipri->eval_criterion, dipri->mode_name,
+              dipri->period, dipri->vec_len);
   sleep(DIPRI_SLEEP_LOG);
 
   // File
