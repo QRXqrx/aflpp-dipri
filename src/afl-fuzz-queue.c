@@ -1659,9 +1659,8 @@ void dipri_seed_reorder(afl_state_t *afl) {
 
   // Log
   fprintf(dipri->log_fp, "reorder_cnt %llu, queued_items %u, "
-          "prior_time %llu, total_time %llu, cal_time %llu, sort_time %llu\n",
+          "reorder_time %llu, cal_time %llu, sort_time %llu\n",
           ++dipri->log_cnt, afl->queued_items,
-          (dipri->last_pri_time - afl->start_time - total_time),
           total_time, (cal_complete_time - start_time),
           (sort_complete_time - cal_complete_time));
 
