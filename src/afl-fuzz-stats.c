@@ -461,7 +461,7 @@ void maybe_update_plot_file(afl_state_t *afl, u32 t_bytes, double bitmap_cvg,
             afl->plot_prev_ed, t_bytes,
             // @DiPri-time
             dipri->time_used,
-            ((afl->prev_run_time + get_cur_time() - afl->start_time) / 1000) - dipri->time_used); /* ignore errors */
+            relative_time_millis - dipri->time_used); /* ignore errors */
 
   } else {
 
