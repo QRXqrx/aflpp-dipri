@@ -1658,10 +1658,11 @@ void dipri_seed_reorder(afl_state_t *afl) {
   dipri->time_used += total_time;
 
   // Log
-  fprintf(dipri->log_fp, "prior_round %u, prior_time %llu, queued_items %u, "
-          "total_time %llu, cal_time %llu, sort_time %llu\n",
-          dipri->log_cnt++, ((dipri->last_pri_time - afl->start_time) / 1000) - total_time,
-          afl->queued_items, total_time, ((cal_complete_time - start_time) / 1000),
+  fprintf(dipri->log_fp, "prior_round %u, queued_items %u, "
+          "prior_time %llu, total_time %llu, cal_time %llu, sort_time %llu\n",
+          dipri->log_cnt++, afl->queued_items,
+          ((dipri->last_pri_time - afl->start_time) / 1000) - total_time,
+          total_time, ((cal_complete_time - start_time) / 1000),
           ((sort_complete_time - cal_complete_time) / 1000));
 
   // Mark new seed flag as 0 to avoid meaningless prioritization.
