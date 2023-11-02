@@ -1752,15 +1752,15 @@ void dipri_record_queue(afl_state_t *afl) {
   FILE  *fp     = NULL;
 
   // Open file
-  fpath = alloc_printf("%s/dist_queue", afl->out_dir);
+  fpath = alloc_printf("%s/dipri_queue", afl->out_dir);
   fp    = fopen(fpath, "w");
 
   // Log
   DiPri_LOG("Record dist info for queued cases to '%s'...", fpath);
 
-  // Write in format: <id>,<total_dist>,<fuzz_level>,<favored>,<bitmap_size>
+  // Write in format: <id>,<pri_score>,<fuzz_level>,<favored>,<bitmap_size>
   // The pri_score for distance-based prioritization is the total distance.
-  fprintf(fp, "id,total_dist,fuzz_level,favored,bitmap_size\n");
+  fprintf(fp, "id,pri_score,fuzz_level,favored,bitmap_size\n");
   for (u32 i = 0; i < afl->queued_items; ++i) {
     struct queue_entry *q = afl->queue_buf[i];
     fprintf(fp, "%u,%lf,%u,%u,%u\n",
