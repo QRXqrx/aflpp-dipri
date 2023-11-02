@@ -1751,13 +1751,10 @@ void dipri_record_queue(afl_state_t *afl) {
   u8    *fpath  = NULL;
   FILE  *fp     = NULL;
 
-  // Open file
+  // Record queue info
   fpath = alloc_printf("%s/dipri_queue", afl->out_dir);
   fp    = fopen(fpath, "w");
-
-  // Log
-  DiPri_LOG("Record dist info for queued cases to '%s'...", fpath);
-
+  DiPri_LOG("Record DiPri queue info to '%s'...", fpath);
   // Write in format: <id>,<pri_score>,<fuzz_level>,<favored>,<bitmap_size>
   // The pri_score for distance-based prioritization is the total distance.
   fprintf(fp, "id,pri_score,fuzz_level,favored,bitmap_size\n");
@@ -1766,6 +1763,16 @@ void dipri_record_queue(afl_state_t *afl) {
     fprintf(fp, "%u,%lf,%u,%u,%u\n",
             q->id, q->pri_score, q->fuzz_level, q->favored, q->bitmap_size);
   }
+
+  // Record dipri config, for reproduction
+  dipri_globals_t *dipri = &afl->dipri;
+  fpath = alloc_printf("%s/dipri_config", afl->out_dir);
+  fp    = fopen(fpath, "w");
+  DiPri_LOG("Record DiPri config to '%s'", fpath);
+  fprintf(fp, "DIPRI_EVAL_TYPE=%s\n", dipri->eval_criterion);
+  fprintf(fp, "DIPRI_MODE=%s\n", dipri->mode_name);
+  if (dipri->eval_type == DIST)
+    fprintf(fp, "DIPRI_MEASURE=%s\n", dipri->measure_name);
 
   ck_free(fpath);
 
