@@ -1772,6 +1772,8 @@ void dipri_record_queue(afl_state_t *afl) {
   DiPri_LOG("Record DiPri config to '%s'", fpath);
   fprintf(fp, "DIPRI_EVAL_TYPE=%s\n", dipri->eval_criterion);
   fprintf(fp, "DIPRI_MODE=%s\n", dipri->mode_name);
+  if (dipri->mode == PERIODICAL)
+    fprintf(fp, "DIPRI_PERIOD=%llu\n", dipri->period);
   if (dipri->eval_type == DIST)
     fprintf(fp, "DIPRI_MEASURE=%s\n", dipri->measure_name);
 
