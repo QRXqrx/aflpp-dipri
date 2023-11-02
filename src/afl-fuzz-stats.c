@@ -448,17 +448,19 @@ void maybe_update_plot_file(afl_state_t *afl, u32 t_bytes, double bitmap_cvg,
 
   if (dipri->on) {
 
-    u64 relative_time = ((afl->prev_run_time + get_cur_time() - afl->start_time) / 1000);
+//    u64 relative_time = ((afl->prev_run_time + get_cur_time() - afl->start_time) / 1000);
 
     fprintf(afl->fsrv.plot_file,
             "%llu, %llu, %u, %u, %u, %u, %0.02f%%, %llu, %llu, %u, %0.02f, %llu, "
             "%u, %llu, %llu\n",
-            relative_time,
+            ((afl->prev_run_time + get_cur_time() - afl->start_time) / 1000),
             afl->queue_cycle - 1, afl->current_entry, afl->queued_items,
             afl->pending_not_fuzzed, afl->pending_favored, bitmap_cvg,
             afl->saved_crashes, afl->saved_hangs, afl->max_depth, eps,
             afl->plot_prev_ed, t_bytes,
-            dipri->time_used, relative_time - dipri->time_used); /* ignore errors */
+            // @DiPri-time
+            dipri->time_used,
+            ((afl->prev_run_time + get_cur_time() - afl->start_time) / 1000) - dipri->time_used); /* ignore errors */
 
   } else {
 
