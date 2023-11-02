@@ -495,7 +495,7 @@ typedef struct dipri_globals {
   u64   time_used;        /* Total time used for prioritization           */
 
   FILE *log_fp;
-  u32   log_cnt;
+  u64   log_cnt;
 
 } dipri_globals_t;
 
