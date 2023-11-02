@@ -3108,9 +3108,9 @@ void dipri_init(afl_state_t *afl) {
   sleep(DIPRI_SLEEP_LOG);
 
   // File
-  u8* log_path  = alloc_printf("%s/DiPri_LOG", afl->out_dir);
+  u8* log_path  = alloc_printf("%s/dipri_log", afl->out_dir);
   dipri->log_fp  = fopen(log_path, "w");
-  if (!dipri->log_fp) FATAL("@DiPri, fopen(DiPri_LOG) failed!");
+  if (!dipri->log_fp) FATAL("@DiPri, fopen(dipri_log) failed!");
   dipri->log_cnt = 0;
   ck_free(log_path);
 
