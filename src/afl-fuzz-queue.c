@@ -1575,19 +1575,21 @@ void intrinsic_field_seed_eval(afl_state_t *afl) {
 
     // Tag intrinsic field as the priority score
     switch (dipri->eval_type) {
+      // Prefer larger
       case BITMAP_SIZE:
         q->pri_score = (double) q->bitmap_size;
-      case EXEC_US:
-        q->pri_score = 1.0 / (double) q->exec_us;
-        break;
       case HANDICAP:
         q->pri_score = (double) q->handicap;
         break;
       case DEPTH:
         q->pri_score = (double) q->depth;
         break;
+      // Prefer smaller
+      case EXEC_US:
+        q->pri_score = 1.0 / (double) q->exec_us;
+        break;
       case LEN:
-        q->pri_score = (double) q->len;
+        q->pri_score = 1.0 / (double) q->len;
         break;
       default:
         FATAL("@DiPri, unsupported eval type (intrinsic field).");
