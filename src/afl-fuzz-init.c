@@ -3036,6 +3036,14 @@ void dipri_init(afl_state_t *afl) {
       DiPri_LOG("Unrecognized eval criterion, use default.");
   }
 
+  // DiPri++: order by 1) #edges 2) distance
+  dipri->dipri_pp = !!getenv("DIPRI_PLUSPLUS");
+  if (dipri->dipri_pp) {
+      DiPri_LOG("@DiPri++, order by #edges first");
+      dipri->eval_type = DIST; // Still need distance calculation.
+  }
+
+
   if (dipri->eval_type == DIST)
       DiPri_LOG("Use distance-based seed evaluation :-)");
   else

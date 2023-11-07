@@ -1465,13 +1465,13 @@ void swap(u32 *a, u32 *b) {
 
 int pri_partition(struct queue_entry **qbuf, u32 arr[], int low, int high) {
 
-  double qdist_pi = qbuf[arr[high]]->pri_score;
+  double pscore_pivot = qbuf[arr[high]]->pri_score;
   int i = low - 1;
 
   for (int j = low; j <= high - 1; j++) {
-    double qdist = qbuf[arr[j]]->pri_score;
+    double pscore = qbuf[arr[j]]->pri_score;
     // Sort by descend distances. From large to small
-    if (qdist > qdist_pi) {
+    if (pscore > pscore_pivot) {
       ++i;
       swap(&arr[i], &arr[j]);
     }
@@ -1489,6 +1489,46 @@ void pri_qsort(struct queue_entry **qbuf, u32 arr[], int low, int high) {
     int pivot = pri_partition(qbuf, arr, low, high);
     pri_qsort(qbuf, arr, low, pivot - 1);
     pri_qsort(qbuf, arr, pivot + 1, high);
+
+  }
+
+}
+
+/// Quick sort used by DiPri++ that prioritizes seed by two keys, i.e., 
+/// 1) covered edges (q->bitmap_size), and 2) distance (q->pri_score) in
+/// sequence.
+int pri_partition_pp(struct queue_entry **qbuf, u32 arr[], int low, int high) {
+
+  // First key
+  u32 bitmap_size_pivot = qbuf[arr[high]]->bitmap_size;
+
+  // Second key
+  double pscore_pivot = qbuf[arr[high]]->pri_score;
+  int i = low - 1;
+
+  for (int j = low; j <= high - 1; j++) {
+    u32     bitmap_size = qbuf[arr[j]]->bitmap_size;
+    double  pscore      = qbuf[arr[j]]->pri_score;
+    // Sort by two keys
+    if ((bitmap_size > bitmap_size_pivot) ||
+        ((bitmap_size == bitmap_size_pivot) && (pscore > pscore_pivot))) {
+      ++i;
+      swap(&arr[i], &arr[j]);
+    }
+  }
+  swap(&arr[i + 1], &arr[high]);
+
+  return i + 1; // The pivot index.
+
+}
+
+void pri_qsort_pp(struct queue_entry **qbuf, u32 arr[], int low, int high) {
+
+  if (low < high) {
+
+    int pivot = pri_partition_pp(qbuf, arr, low, high);
+    pri_qsort_pp(qbuf, arr, low, pivot - 1);
+    pri_qsort_pp(qbuf, arr, pivot + 1, high);
 
   }
 
@@ -1523,24 +1563,24 @@ void dist_seed_eval(afl_state_t *afl) {
       struct queue_entry *q2 = afl->queue_buf[j];
 
       // Update total dist
-      double qdist;
+      double pscore;
       switch (dipri->measure) {
         case EUCLIDEAN:
-          qdist = euclidean(dipri->vec_len, q1, q2);
+          pscore = euclidean(dipri->vec_len, q1, q2);
           break ;
         case HAMMING:
-          qdist = hamming(dipri->vec_len, q1, q2);
+          pscore = hamming(dipri->vec_len, q1, q2);
           break ;
         case JACCARD:
-          qdist = jaccard(dipri->vec_len, q1, q2);
+          pscore = jaccard(dipri->vec_len, q1, q2);
           break ;
         default:
           FATAL("dipri_seed_reorder(), unsupported distance measure!");
       }
 
       // Update distance
-      q1->pri_score += qdist;
-      q2->pri_score += qdist;
+      q1->pri_score += pscore;
+      q2->pri_score += pscore;
 
     }
 
@@ -1586,10 +1626,10 @@ void intrinsic_field_seed_eval(afl_state_t *afl) {
         break;
       // Prefer smaller
       case EXEC_US:
-        q->pri_score = 1.0 / (double) q->exec_us;
+        q->pri_score = 100.0 / (double) q->exec_us;
         break;
       case LEN:
-        q->pri_score = 1.0 / (double) q->len;
+        q->pri_score = 100.0 / (double) q->len;
         break;
       default:
         FATAL("@DiPri, unsupported eval type (intrinsic field).");
@@ -1647,7 +1687,10 @@ void dipri_seed_reorder(afl_state_t *afl) {
   if (unlikely(!dipri->prior_indices))
     PFATAL("dipri_seed_reorder(), fail to realloc %u to dipri->prior_indices", dipri->prior_len);
   for (u32 i = 0; i < dipri->prior_len; ++i) dipri->prior_indices[i] = i;
-  pri_qsort(afl->queue_buf, dipri->prior_indices, 0, (int) dipri->prior_len - 1);
+  if (dipri->dipri_pp)
+    pri_qsort_pp(afl->queue_buf, dipri->prior_indices, 0, (int) dipri->prior_len - 1);
+  else
+    pri_qsort(afl->queue_buf, dipri->prior_indices, 0, (int) dipri->prior_len - 1);
 
   // Record time used for sorting
   sort_complete_time    = get_cur_time();
@@ -1743,7 +1786,7 @@ void dipri_seed_prioritize(afl_state_t *afl) {
   afl->current_entry          = dipri->prior_indices[dipri->prior_cur++];
   afl->queue_cur              = afl->queue_buf[afl->current_entry];
   afl->queue_cur->perf_score  = calculate_score(afl, afl->queue_cur);
-  // @DiPri-TODO: reward top-k% seeds
+  // @DiPri-TODO: reward top-k% seeds?
 
   // Log
   fprintf(dipri->log_fp, "pick_seed_id %u\n", afl->current_entry);
@@ -1773,6 +1816,7 @@ void dipri_record_queue(afl_state_t *afl) {
   fpath = alloc_printf("%s/dipri_config", afl->out_dir);
   fp    = fopen(fpath, "w");
   DiPri_LOG("Record DiPri config to '%s'", fpath);
+  fprintf(fp, "DIPRI_PLUSPLUS=%d\n", dipri->dipri_pp);
   fprintf(fp, "DIPRI_EVAL_TYPE=%s\n", dipri->eval_criterion);
   fprintf(fp, "DIPRI_MODE=%s\n", dipri->mode_name);
   if (dipri->mode == PERIODICAL)
@@ -1783,7 +1827,6 @@ void dipri_record_queue(afl_state_t *afl) {
   ck_free(fpath);
 
 }
-
 
 
 // @DiPri: End core logics

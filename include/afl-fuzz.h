@@ -474,6 +474,7 @@ enum {
 
 typedef struct dipri_globals {
 
+  u8  dipri_pp;           /* Whether using dipri_pp, order by #edges+dist */
   u8  on;                 /* Whether distance-based seed selection is on  */
   u8  fuzz_start;
   u8  queue_updated;      /* Whether seed queue is updated                */
