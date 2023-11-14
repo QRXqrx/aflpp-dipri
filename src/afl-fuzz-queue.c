@@ -1562,6 +1562,14 @@ void dist_seed_eval(afl_state_t *afl) {
 
       if (i == j) continue ; // No need to compute distance with itself.
 
+      // @DiPri-Debug
+      if (likely(dipri->fuzz_start)) {
+        snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "eval %u,%u,%u",
+                 i, j, afl->queued_items);
+        afl->stage_name = afl->stage_name_buf;
+        show_stats(afl);
+      }
+
       struct queue_entry *q2 = afl->queue_buf[j];
 
       // @DiPri-Debug: 20231114, SF? no.
@@ -1587,7 +1595,8 @@ void dist_seed_eval(afl_state_t *afl) {
 
       // @DiPri-Debug
       if (likely(dipri->fuzz_start)) {
-        snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "goodeval item-%u+%u", i, j);
+        snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "evalok %u,%u,%u",
+                 i, j, afl->queued_items);
         afl->stage_name = afl->stage_name_buf;
         show_stats(afl);
       }
@@ -1681,8 +1690,6 @@ void dipri_seed_reorder(afl_state_t *afl) {
     dist_seed_eval(afl);
   else
     intrinsic_field_seed_eval(afl);
-  // @DiPri-Debug
-  DiPri_LOG("Seed evaluation success!");
 
   // Record time used for calculating distances
   cal_complete_time = get_cur_time();
