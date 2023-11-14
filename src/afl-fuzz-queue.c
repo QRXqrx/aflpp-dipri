@@ -1541,6 +1541,7 @@ void dist_seed_eval(afl_state_t *afl) {
 
   dipri_globals_t *dipri = &afl->dipri;
 
+  // @DiPri-Debug: 20231114, SF? no.
   for (u32 i = 0; i < afl->queued_items; ++i) {
 
     // Locate newly added seeds.
@@ -1688,7 +1689,7 @@ void dipri_seed_reorder(afl_state_t *afl) {
   dipri->prior_cur     = 0;
   dipri->prior_indices = (u32*) realloc(dipri->prior_indices, dipri->prior_len * sizeof(u32));
   if (unlikely(!dipri->prior_indices))
-    PFATAL("dipri_seed_reorder(), fail to realloc %u to dipri->prior_indices", dipri->prior_len);
+    FATAL("dipri_seed_reorder(), fail to realloc %u to dipri->prior_indices", dipri->prior_len);
   for (u32 i = 0; i < dipri->prior_len; ++i) dipri->prior_indices[i] = i;
   if (dipri->dipri_pp)
     pri_qsort_pp(afl->queue_buf, dipri->prior_indices, 0, (int) dipri->prior_len - 1);
