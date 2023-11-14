@@ -1620,6 +1620,7 @@ void intrinsic_field_seed_eval(afl_state_t *afl) {
       // Prefer larger
       case BITMAP_SIZE:
         q->pri_score = (double) q->bitmap_size;
+        break;
       case HANDICAP:
         q->pri_score = (double) q->handicap;
         break;
