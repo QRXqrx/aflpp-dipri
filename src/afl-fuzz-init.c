@@ -3037,7 +3037,7 @@ void dipri_init(afl_state_t *afl) {
   }
 
   // DiPri++: order by 1) #edges 2) distance
-  dipri->dipri_pp = !!getenv("DIPRI_PLUSPLUS");
+  dipri->dipri_pp = (getenv("DIPRI_PLUSPLUS") != NULL);
   if (dipri->dipri_pp) {
       DiPri_LOG("@DiPri++, order by #edges first");
       dipri->eval_type = DIST; // Still need distance calculation.
@@ -3054,6 +3054,10 @@ void dipri_init(afl_state_t *afl) {
 
   // Set vector length
   dipri->vec_len = afl->fsrv.real_map_size;
+  // DiPri-Debug
+  DiPri_LOG("dipri->vec_len %u, afl->fsrv.real_map_size %u, afl->fsrv.map_size %u",
+            dipri->vec_len, afl->fsrv.real_map_size, afl->fsrv.map_size);
+  FATAL("Debug");
 
   // Choose mode
   dipri->mode = VANILLA; // Use vanilla mode by default

@@ -205,7 +205,7 @@ struct queue_entry {
 
   // @DiPri
   u8     *cov_vec;                      /* Coverage vector                    */
-  u8      has_pri_score;                /* Has computed distance with others  */
+  u8      has_eval;                     /* Has been evaluated before          */
   double  pri_score;                    /* Accordance for seed prioritization */
 
 };

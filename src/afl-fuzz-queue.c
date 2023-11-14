@@ -564,7 +564,7 @@ void add_to_queue(afl_state_t *afl, u8 *fname, u32 len, u8 passed_det) {
   q->mother = afl->queue_cur;
 
   // @DiPri
-  q->has_pri_score = 0; // Mark as 0 once appended into queue
+  q->has_eval = 0; // Mark as 0 once appended into queue
 
 #ifdef INTROSPECTION
   q->bitsmap_size = afl->bitsmap_size;
@@ -1547,10 +1547,11 @@ void dist_seed_eval(afl_state_t *afl) {
     struct queue_entry *q1 = afl->queue_buf[i];
 
     // Skip old seeds, only calculate distance for freshly added seeds
-    if (q1->has_pri_score) continue ;
+    if (q1->has_eval) continue ;
 
     // Show evaluation stage
     if (likely(dipri->fuzz_start)) {
+      // @DiPri-Debug: 20231114, SF? no.
       snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "@DiPri eval item-%u", i);
       afl->stage_name = afl->stage_name_buf;
       show_stats(afl);
@@ -1562,7 +1563,8 @@ void dist_seed_eval(afl_state_t *afl) {
 
       struct queue_entry *q2 = afl->queue_buf[j];
 
-      // Update total dist
+      // @DiPri-Debug: 20231114, SF? no.
+      // Update total dist.
       double pscore;
       switch (dipri->measure) {
         case EUCLIDEAN:
@@ -1585,7 +1587,7 @@ void dist_seed_eval(afl_state_t *afl) {
     }
 
     // Mark as 1
-    q1->has_pri_score = 1;
+    q1->has_eval = 1;
 
   }
 
@@ -1604,7 +1606,7 @@ void intrinsic_field_seed_eval(afl_state_t *afl) {
     struct queue_entry *q = afl->queue_buf[i];
 
     // Skip old seeds, only attach priority score for freshly added seeds
-    if (q->has_pri_score) continue ;
+    if (q->has_eval) continue ;
 
     // Show evaluation stage
     if (likely(dipri->fuzz_start)) {
@@ -1636,7 +1638,7 @@ void intrinsic_field_seed_eval(afl_state_t *afl) {
     }
 
     // Mark as 1
-    q->has_pri_score = 1;
+    q->has_eval = 1;
 
   }
 
