@@ -3057,7 +3057,6 @@ void dipri_init(afl_state_t *afl) {
   // DiPri-Debug
   DiPri_LOG("dipri->vec_len %u, afl->fsrv.real_map_size %u, afl->fsrv.map_size %u",
             dipri->vec_len, afl->fsrv.real_map_size, afl->fsrv.map_size);
-  FATAL("Debug");
 
   // Choose mode
   dipri->mode = VANILLA; // Use vanilla mode by default
