@@ -1587,7 +1587,7 @@ void dist_seed_eval(afl_state_t *afl) {
 
       // @DiPri-Debug
       if (likely(dipri->fuzz_start)) {
-        snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "finish item-%u+%u", i, j);
+        snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "goodeval item-%u+%u", i, j);
         afl->stage_name = afl->stage_name_buf;
         show_stats(afl);
       }
