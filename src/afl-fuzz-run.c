@@ -391,7 +391,12 @@ void record_cov_vec(afl_state_t *afl, struct queue_entry *q) {
   if (dipri->vec_len <= 0)
     FATAL("record_cov_vec(), invalid vec_len (%u)", dipri->vec_len);
 
-  q->cov_vec = malloc(dipri->vec_len);
+  // A litte larget (+1) to avoid segmentation fault (?)
+  // The size of char type is 1, but better to add sizeof for malloc.
+  q->cov_vec = (u8 *) malloc((dipri->vec_len + 1) * sizeof(u8));
+
+  if (q->cov_vec == NULL)
+    FATAL("@DiPri, record_cov_vec()#malloc");
 
   if (dipri->measure == EUCLIDEAN) {
 
@@ -405,7 +410,6 @@ void record_cov_vec(afl_state_t *afl, struct queue_entry *q) {
 
     for (u32 i = 0; i < dipri->vec_len; ++i)
       q->cov_vec[i] = (afl->fsrv.trace_bits[i] > 0);
-
 
   }
 
