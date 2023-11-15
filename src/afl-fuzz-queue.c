@@ -1541,6 +1541,8 @@ void dist_seed_eval(afl_state_t *afl) {
 
   dipri_globals_t *dipri = &afl->dipri;
 
+
+
   // @DiPri-Debug: 20231114, SF? no.
   for (u32 i = 0; i < afl->queued_items; ++i) {
 
@@ -1552,7 +1554,6 @@ void dist_seed_eval(afl_state_t *afl) {
 
     // Show evaluation stage
     if (likely(dipri->fuzz_start)) {
-      // @DiPri-Debug: 20231114, SF? no.
       snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "@DiPri eval item-%u", i);
       afl->stage_name = afl->stage_name_buf;
       show_stats(afl);
@@ -1571,6 +1572,14 @@ void dist_seed_eval(afl_state_t *afl) {
       }
 
       struct queue_entry *q2 = afl->queue_buf[j];
+
+      // @DiPri-Debug
+      if (likely(dipri->fuzz_start)) {
+        snprintf(afl->stage_name_buf, STAGE_BUF_SIZE,
+                 "getok si=%u,sj=%u", i, j);
+        afl->stage_name = afl->stage_name_buf;
+        show_stats(afl);
+      }
 
       // @DiPri-Debug: 20231114, SF? no.
       // Update total dist.
