@@ -2535,8 +2535,6 @@ int main(int argc, char **argv_orig, char **envp) {
           // Use distance-based selection
           dipri_seed_prioritize(afl);
 
-          // @DiPri-TODO: add other prioritization
-
         } else {
 
           // See if we need reinit alias table. alias_table is used for random

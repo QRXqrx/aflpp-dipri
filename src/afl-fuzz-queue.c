@@ -1541,9 +1541,6 @@ void dist_seed_eval(afl_state_t *afl) {
 
   dipri_globals_t *dipri = &afl->dipri;
 
-
-
-  // @DiPri-Debug: 20231114, SF? no.
   for (u32 i = 0; i < afl->queued_items; ++i) {
 
     // Locate newly added seeds.
@@ -1563,25 +1560,8 @@ void dist_seed_eval(afl_state_t *afl) {
 
       if (i == j) continue ; // No need to compute distance with itself.
 
-      // @DiPri-Debug
-      if (likely(dipri->fuzz_start)) {
-        snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "eval %u,%u,%u",
-                 i, j, afl->queued_items);
-        afl->stage_name = afl->stage_name_buf;
-        show_stats(afl);
-      }
-
       struct queue_entry *q2 = afl->queue_buf[j];
 
-      // @DiPri-Debug
-      if (likely(dipri->fuzz_start)) {
-        snprintf(afl->stage_name_buf, STAGE_BUF_SIZE,
-                 "getok si=%u,sj=%u", i, j);
-        afl->stage_name = afl->stage_name_buf;
-        show_stats(afl);
-      }
-
-      // @DiPri-Debug: 20231114, SF? no.
       // Update total dist.
       double pscore;
       switch (dipri->measure) {
@@ -1598,25 +1578,9 @@ void dist_seed_eval(afl_state_t *afl) {
           FATAL("dipri_seed_reorder(), unsupported distance measure!");
       }
 
-      // @DiPri-Debug
-      if (likely(dipri->fuzz_start)) {
-        snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "calok %u,%u,%u",
-                 i, j, afl->queued_items);
-        afl->stage_name = afl->stage_name_buf;
-        show_stats(afl);
-      }
-
       // Update distance
       q1->pri_score += pscore;
       q2->pri_score += pscore;
-
-      // @DiPri-Debug
-      if (likely(dipri->fuzz_start)) {
-        snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "evalok %u,%u,%u",
-                 i, j, afl->queued_items);
-        afl->stage_name = afl->stage_name_buf;
-        show_stats(afl);
-      }
 
     }
 

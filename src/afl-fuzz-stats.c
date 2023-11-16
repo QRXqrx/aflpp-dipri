@@ -467,7 +467,7 @@ void maybe_update_plot_file(afl_state_t *afl, u32 t_bytes, double bitmap_cvg,
               afl->pending_not_fuzzed, afl->pending_favored, bitmap_cvg,
               afl->saved_crashes, afl->saved_hangs, afl->max_depth, eps,
               afl->plot_prev_ed, t_bytes,
-              // @DiPri-time
+              // @DiPri-stats
               dipri->log_cnt,
               dipri->time_used,
               relative_time_millis - dipri->time_used); /* ignore errors */
