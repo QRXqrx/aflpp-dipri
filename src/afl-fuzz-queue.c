@@ -1790,7 +1790,8 @@ void dipri_seed_prioritize(afl_state_t *afl) {
   // @DiPri-TODO: reward top-k% seeds?
 
   // Log
-  fprintf(dipri->log_fp, "pick_seed_id %u\n", afl->current_entry);
+  fprintf(dipri->log_fp, "pick_seed %u, prior_score %lf\n",
+          afl->current_entry, afl->queue_cur->pri_score);
 
 }
 
