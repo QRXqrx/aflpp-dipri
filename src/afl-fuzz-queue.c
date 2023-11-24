@@ -1562,6 +1562,13 @@ void dist_seed_eval(afl_state_t *afl) {
 
       struct queue_entry *q2 = afl->queue_buf[j];
 
+      // DiPri-Debug
+      if (likely(dipri->fuzz_start)) {
+        snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "@DiPri eval %u,%u", i,j);
+        afl->stage_name = afl->stage_name_buf;
+        show_stats(afl);
+      }
+
       // Update total dist.
       double pscore;
       switch (dipri->measure) {
@@ -1576,6 +1583,13 @@ void dist_seed_eval(afl_state_t *afl) {
           break ;
         default:
           FATAL("dipri_seed_reorder(), unsupported distance measure!");
+      }
+
+      // DiPri-Debug
+      if (likely(dipri->fuzz_start)) {
+        snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "@DiPri evalok %u,%u", i,j);
+        afl->stage_name = afl->stage_name_buf;
+        show_stats(afl);
       }
 
       // Update distance
