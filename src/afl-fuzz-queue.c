@@ -564,7 +564,8 @@ void add_to_queue(afl_state_t *afl, u8 *fname, u32 len, u8 passed_det) {
   q->mother = afl->queue_cur;
 
   // @DiPri
-  q->has_eval = 0; // Mark as 0 once appended into queue
+  q->has_eval   = 0;  // Mark as 0 once appended into queue
+  q->pri_score  = 0;  // Mark pri_score as 0 when adding to queue
 
 #ifdef INTROSPECTION
   q->bitsmap_size = afl->bitsmap_size;
@@ -1556,9 +1557,10 @@ void dist_seed_eval(afl_state_t *afl) {
       show_stats(afl);
     }
 
-    for (u32 j = 0; j < afl->queued_items; ++j) {
+//    for (u32 j = 0; j < afl->queued_items; ++j) {
+//      if (i == j) continue ; // No need to compute distance with itself.
 
-      if (i == j) continue ; // No need to compute distance with itself.
+    for (u32 j = 0; j < i; ++j) { // DiPri: avoid double-computing on newly added seeds
 
       struct queue_entry *q2 = afl->queue_buf[j];
 
