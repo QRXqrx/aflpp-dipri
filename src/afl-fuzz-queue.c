@@ -1444,6 +1444,21 @@ double hamming(u32 len, struct queue_entry *q1, struct queue_entry *q2) {
   return res / len;
 }
 
+double hamming_debug(u32 len, struct queue_entry *q1, struct queue_entry *q2,
+                     afl_state_t *afl, dipri_globals_t *dipri) {
+  double res = 0;
+  for (u32 i = 0; i < len; ++i) {
+    // DiPri-Debug
+    if (likely(dipri->fuzz_start)) {
+      snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "@DiPri hamming x%u", i);
+      afl->stage_name = afl->stage_name_buf;
+      show_stats(afl);
+    }
+    res += (q1->cov_vec[i] ^ q2->cov_vec[i]);
+  }
+  return res / len;
+}
+
 double jaccard(u32 len, struct queue_entry *q1, struct queue_entry *q2) {
   double uset = 0;  // Union set
   double iset = 0;  // Intersection set
@@ -1578,7 +1593,8 @@ void dist_seed_eval(afl_state_t *afl) {
           pscore = euclidean(dipri->vec_len, q1, q2);
           break ;
         case HAMMING:
-          pscore = hamming(dipri->vec_len, q1, q2);
+//          pscore = hamming(dipri->vec_len, q1, q2);
+          pscore = hamming_debug(dipri->vec_len, q1, q2, afl, dipri);
           break ;
         case JACCARD:
           pscore = jaccard(dipri->vec_len, q1, q2);
