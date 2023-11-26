@@ -393,11 +393,12 @@ void record_cov_vec(afl_state_t *afl, struct queue_entry *q) {
 
   // A little larger to avoid segmentation fault (?)
   // The size of char type is 1, but better to add sizeof for malloc.
-  q->cov_vec = (u8 *) malloc((dipri->vec_len + 8) * sizeof(u8));
+//  q->cov_vec = (u8 *) malloc((dipri->vec_len + 8) * sizeof(u8));
+  q->cov_vec = (u8 *) ck_alloc((dipri->vec_len + 1) * sizeof(u8));
 
   if (q->cov_vec == NULL) {
-    fprintf(dipri->log_fp, "failed due to record_cov_vec()#malloc");
-    FATAL("@DiPri, record_cov_vec()#malloc");
+    fprintf(dipri->log_fp, "failed due to record_cov_vec()#*alloc");
+    FATAL("@DiPri, record_cov_vec()#*alloc");
   }
 
   if (dipri->measure == EUCLIDEAN) {
