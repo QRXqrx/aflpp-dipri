@@ -1450,7 +1450,7 @@ double hamming_debug(u32 len, struct queue_entry *q1, struct queue_entry *q2,
   for (u32 i = 0; i < len; ++i) {
     // DiPri-Debug
     if (likely(dipri->fuzz_start)) {
-      snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "hamming %u,%u", i, len);
+      snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "hamming %u,%u", len, i);
       afl->stage_name = afl->stage_name_buf;
       show_stats(afl);
     }
