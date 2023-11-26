@@ -3050,9 +3050,9 @@ void dipri_init(afl_state_t *afl) {
 
   /* Initialize for @DiPri prioritization. */
 
-  // Set vector length. 20231115-turn to use map_size
-  //dipri->vec_len = afl->fsrv.real_map_size;
-  dipri->vec_len = afl->fsrv.map_size;
+  // Set vector length.
+  dipri->vec_len = afl->fsrv.real_map_size;
+//  dipri->vec_len = afl->fsrv.map_size;
 
   // DiPri-Debug
   DiPri_LOG("dipri->vec_len %u, afl->fsrv.real_map_size %u, afl->fsrv.map_size %u",
