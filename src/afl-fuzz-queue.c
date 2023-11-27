@@ -1593,8 +1593,8 @@ void dist_seed_eval(afl_state_t *afl) {
           pscore = euclidean(dipri->vec_len, q1, q2);
           break ;
         case HAMMING:
-//          pscore = hamming(dipri->vec_len, q1, q2);
-          pscore = hamming_debug(dipri->vec_len, q1, q2, afl, dipri);
+          pscore = hamming(dipri->vec_len, q1, q2);
+//          pscore = hamming_debug(dipri->vec_len, q1, q2, afl, dipri);
           break ;
         case JACCARD:
           pscore = jaccard(dipri->vec_len, q1, q2);
