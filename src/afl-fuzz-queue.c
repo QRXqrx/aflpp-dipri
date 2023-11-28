@@ -1447,15 +1447,26 @@ double hamming(u32 len, struct queue_entry *q1, struct queue_entry *q2) {
 double hamming_debug(u32 len, struct queue_entry *q1, struct queue_entry *q2,
                      afl_state_t *afl, dipri_globals_t *dipri) {
   double res = 0;
-  for (u32 i = 0; i < len; ++i) {
-    // DiPri-Debug
-    if (likely(dipri->fuzz_start)) {
-      snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "hamming %u,%u", len, i);
+  // DiPri-Debug
+  if (likely(dipri->fuzz_start)) {
+    if (!q1->cov_vec) {
+      snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "hamming q1 null vec!");
+      afl->stage_name = afl->stage_name_buf;
+      show_stats(afl);
+      FATAL("@DiPri, q1 null vec!");
+    } else if (!q2->cov_vec) {
+      snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "hamming q2 null vec!");
+      afl->stage_name = afl->stage_name_buf;
+      show_stats(afl);
+      FATAL("@DiPri, q2 null vec!");
+    } else {
+      snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "hamming good vecs");
       afl->stage_name = afl->stage_name_buf;
       show_stats(afl);
     }
-    res += (q1->cov_vec[i] ^ q2->cov_vec[i]);
   }
+  for (u32 i = 0; i < len; ++i)
+    res += (q1->cov_vec[i] ^ q2->cov_vec[i]);
   return res / len;
 }
 
@@ -1593,8 +1604,8 @@ void dist_seed_eval(afl_state_t *afl) {
           pscore = euclidean(dipri->vec_len, q1, q2);
           break ;
         case HAMMING:
-          pscore = hamming(dipri->vec_len, q1, q2);
-//          pscore = hamming_debug(dipri->vec_len, q1, q2, afl, dipri);
+//          pscore = hamming(dipri->vec_len, q1, q2);
+          pscore = hamming_debug(dipri->vec_len, q1, q2, afl, dipri);
           break ;
         case JACCARD:
           pscore = jaccard(dipri->vec_len, q1, q2);
@@ -1739,7 +1750,7 @@ void dipri_seed_reorder(afl_state_t *afl) {
 
   // Log
   fprintf(dipri->log_fp, "reorder_cnt %llu, queued_items %u, "
-          "reorder_time %llu, cal_time %llu, sort_time %llu\n",
+          "total_time %llu, eval_time %llu, reorder_time %llu\n",
           ++dipri->log_cnt, afl->queued_items,
           total_time, (cal_complete_time - start_time),
           (sort_complete_time - cal_complete_time));
@@ -1822,8 +1833,8 @@ void dipri_seed_prioritize(afl_state_t *afl) {
   // @DiPri-TODO: reward top-k% seeds?
 
   // Log
-  fprintf(dipri->log_fp, "pick_seed %u, prior_score %lf\n",
-          afl->current_entry, afl->queue_cur->pri_score);
+  fprintf(dipri->log_fp, "pick_seed %u, prior_score %lf, queue_size %u\n",
+          afl->current_entry, afl->queue_cur->pri_score, afl->queued_items);
 
 }
 

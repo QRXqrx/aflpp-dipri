@@ -480,6 +480,7 @@ u8 fuzz_one_original(afl_state_t *afl) {
 
       afl->queue_cur->exec_cksum = 0;
 
+      // @DiPri: calibrate_case, fuzz_one_original
       res =
           calibrate_case(afl, afl->queue_cur, in_buf, afl->queue_cycle - 1, 0);
 
@@ -3203,6 +3204,7 @@ static u8 mopt_common_fuzzing(afl_state_t *afl, MOpt_globals_t MOpt_globals) {
 
       afl->queue_cur->exec_cksum = 0;
 
+      // @DiPri: calibrate_case
       res =
           calibrate_case(afl, afl->queue_cur, in_buf, afl->queue_cycle - 1, 0);
 

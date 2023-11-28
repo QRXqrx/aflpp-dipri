@@ -588,6 +588,7 @@ save_if_interesting(afl_state_t *afl, void *mem, u32 len, u8 fault) {
 
     /* Try to calibrate inline; this also calls update_bitmap_score() when
        successful. */
+    // @DiPri: calibrate_case, save_if_interesting
     res = calibrate_case(afl, afl->queue_top, mem, afl->queue_cycle - 1, 0);
 
     if (unlikely(res == FSRV_RUN_ERROR)) {
