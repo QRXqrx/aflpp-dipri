@@ -1597,6 +1597,10 @@ void dist_seed_eval(afl_state_t *afl) {
         show_stats(afl);
       }
 
+      // Sanitizing check
+      if (unlikely(!q1->cov_vec)) FATAL("@DiPri, q1 seed-%u null cov_vec!", i);
+      if (unlikely(!q2->cov_vec)) FATAL("@DiPri, q2 seed-%u null cov_vec!", j);
+
       // Update total dist.
       double pscore;
       switch (dipri->measure) {
