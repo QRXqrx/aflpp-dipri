@@ -1578,7 +1578,7 @@ void dist_seed_eval(afl_state_t *afl) {
 
     // Show evaluation stage
     if (likely(dipri->fuzz_start)) {
-      snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "@DiPri eval seed-%u", i);
+      snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "@DiPri eval %u", i);
       afl->stage_name = afl->stage_name_buf;
       show_stats(afl);
     }
