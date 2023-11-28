@@ -633,9 +633,6 @@ u8 calibrate_case(afl_state_t *afl, struct queue_entry *q, u8 *use_mem,
 
   update_bitmap_score(afl, q);
 
-  // @DiPri
-  record_cov_vec(afl, q);
-
   /* If this case didn't result in new output from the instrumentation, tell
      parent. This is a non-critical problem, but something to warn the user
      about. */
@@ -675,6 +672,9 @@ abort_calibration:
   afl->stage_max = old_sm;
 
   if (!first_run) { show_stats(afl); }
+
+  // @DiPri
+  record_cov_vec(afl, q);
 
   return fault;
 
