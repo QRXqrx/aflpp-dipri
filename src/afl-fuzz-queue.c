@@ -1542,6 +1542,13 @@ void dist_seed_eval(afl_state_t *afl) {
 
   dipri_globals_t *dipri = &afl->dipri;
 
+  // Show evaluation stage
+  if (likely(dipri->fuzz_start)) {
+    snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "@DiPri seed eval");
+    afl->stage_name = afl->stage_name_buf;
+    show_stats(afl);
+  }
+
   for (u32 i = 0; i < afl->queued_items; ++i) {
 
     // Locate newly added seeds.
@@ -1550,12 +1557,11 @@ void dist_seed_eval(afl_state_t *afl) {
     // Skip old seeds, only calculate distance for freshly added seeds
     if (q1->has_eval) continue ;
 
-    // Show evaluation stage
-    if (likely(dipri->fuzz_start)) {
-      snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "@DiPri eval %u", i);
-      afl->stage_name = afl->stage_name_buf;
-      show_stats(afl);
-    }
+//    if (likely(dipri->fuzz_start)) {
+//      snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "@DiPri eval %u", i);
+//      afl->stage_name = afl->stage_name_buf;
+//      show_stats(afl);
+//    }
 
     for (u32 j = 0; j < i; ++j) { // DiPri: avoid double-computing on newly added seeds
 
@@ -1601,6 +1607,13 @@ void intrinsic_field_seed_eval(afl_state_t *afl) {
 
   dipri_globals_t *dipri = &afl->dipri;
 
+  // Show evaluation stage
+  if (likely(dipri->fuzz_start)) {
+    snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "@DiPri seed eval");
+    afl->stage_name = afl->stage_name_buf;
+    show_stats(afl);
+  }
+
   for (u32 i = 0; i < afl->queued_items; ++i) {
 
     // Locate newly added seeds.
@@ -1609,12 +1622,11 @@ void intrinsic_field_seed_eval(afl_state_t *afl) {
     // Skip old seeds, only attach priority score for freshly added seeds
     if (q->has_eval) continue ;
 
-    // Show evaluation stage
-    if (likely(dipri->fuzz_start)) {
-      snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "@DiPri eval %u", i);
-      afl->stage_name = afl->stage_name_buf;
-      show_stats(afl);
-    }
+//    if (likely(dipri->fuzz_start)) {
+//      snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "@DiPri eval %u", i);
+//      afl->stage_name = afl->stage_name_buf;
+//      show_stats(afl);
+//    }
 
     // Tag intrinsic field as the priority score
     switch (dipri->eval_type) {
