@@ -1557,19 +1557,9 @@ void dist_seed_eval(afl_state_t *afl) {
       show_stats(afl);
     }
 
-//    for (u32 j = 0; j < afl->queued_items; ++j) {
-//      if (i == j) continue ; // No need to compute distance with itself.
-
     for (u32 j = 0; j < i; ++j) { // DiPri: avoid double-computing on newly added seeds
 
       struct queue_entry *q2 = afl->queue_buf[j];
-
-      // DiPri-Debug
-      if (likely(dipri->fuzz_start)) {
-        snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "@DiPri eval %u,%u", i,j);
-        afl->stage_name = afl->stage_name_buf;
-        show_stats(afl);
-      }
 
       // Sanitizing check
       if (unlikely(!q1->cov_vec)) FATAL("@DiPri, q1(new) seed-%u null cov_vec!", i);
@@ -1589,13 +1579,6 @@ void dist_seed_eval(afl_state_t *afl) {
           break ;
         default:
           FATAL("dipri_seed_reorder(), unsupported distance measure!");
-      }
-
-      // DiPri-Debug
-      if (likely(dipri->fuzz_start)) {
-        snprintf(afl->stage_name_buf, STAGE_BUF_SIZE, "@DiPri evalok %u,%u", i,j);
-        afl->stage_name = afl->stage_name_buf;
-        show_stats(afl);
       }
 
       // Update distance
