@@ -1434,7 +1434,7 @@ double euclidean(u32 len, struct queue_entry *q1, struct queue_entry *q2) {
     hit_diff = q1->cov_vec[i] - q2->cov_vec[i];
     res += (hit_diff * hit_diff);
   }
-  return res / len;
+  return sqrt(res) / len;
 }
 
 double hamming(u32 len, struct queue_entry *q1, struct queue_entry *q2) {
