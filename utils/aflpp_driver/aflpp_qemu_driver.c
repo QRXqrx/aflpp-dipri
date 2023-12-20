@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -22,15 +21,12 @@ int main(int argc, char **argv) {
   if (LLVMFuzzerInitialize) LLVMFuzzerInitialize(&argc, &argv);
   // Do any other expensive one-time initialization here.
 
-  if (getenv("AFL_QEMU_DRIVER_NO_HOOK") || getenv("AFL_FRIDA_DRIVER_NO_HOOK")) {
+  if (getenv("AFL_QEMU_DRIVER_NO_HOOK")) {
 
     afl_qemu_driver_stdin_input();
 
   } else {
 
-    fprintf(stderr,
-            "Using shared-memory testcases. To read via stdin, set "
-            "AFL_QEMU_DRIVER_NO_HOOK=1.\n");
     uint8_t dummy_input[1024000] = {0};
     LLVMFuzzerTestOneInput(dummy_input, 1);
 

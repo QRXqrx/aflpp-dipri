@@ -4,7 +4,7 @@
 
    Written by Marc Heuse <mh@mh-sec.de>
 
-   Copyright 2019-2023 AFLplusplus Project. All rights reserved.
+   Copyright 2019-2020 AFLplusplus Project. All rights reserved.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -112,7 +112,7 @@ static void __afl_map_shm(void) {
   if (id_str) {
 
 #ifdef USEMMAP
-    const char    *shm_file_path = id_str;
+    const char *   shm_file_path = id_str;
     int            shm_fd = -1;
     unsigned char *shm_base = NULL;
 

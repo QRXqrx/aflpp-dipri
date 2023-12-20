@@ -6,7 +6,7 @@
    Originally written by Michal Zalewski
 
    Copyright 2016 Google Inc. All rights reserved.
-   Copyright 2019-2023 AFLplusplus Project. All rights reserved.
+   Copyright 2019-2020 AFLplusplus Project. All rights reserved.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -32,8 +32,6 @@
 
 #include "../types.h"
 #include "../config.h"
-
-#include "debug.h"
 
 #if !defined __linux__ && !defined __APPLE__ && !defined __FreeBSD__ &&      \
     !defined __OpenBSD__ && !defined __NetBSD__ && !defined __DragonFly__ && \
@@ -171,7 +169,7 @@ static void __tokencap_load_mappings(void) {
   int mib[] = {CTL_VM, VM_PROC, VM_PROC_MAP, __tokencap_pid,
                sizeof(struct kinfo_vmentry)};
   #endif
-  char  *buf, *low, *high;
+  char * buf, *low, *high;
   size_t miblen = sizeof(mib) / sizeof(mib[0]);
   size_t len;
 
@@ -345,8 +343,6 @@ static void __tokencap_dump(const u8 *ptr, size_t len, u8 is_text) {
   wrt_ok &= (pos == write(__tokencap_out_file, buf, pos));
   wrt_ok &= (2 == write(__tokencap_out_file, "\"\n", 2));
 
-  if (!wrt_ok) { DEBUGF("%s", "writing to the token file failed\n"); }
-
 }
 
 /* Replacements for strcmp(), memcmp(), and so on. Note that these will be used
@@ -354,7 +350,7 @@ static void __tokencap_dump(const u8 *ptr, size_t len, u8 is_text) {
 
 #undef strcmp
 
-__attribute__((hot)) int strcmp(const char *str1, const char *str2) {
+int strcmp(const char *str1, const char *str2) {
 
   if (__tokencap_is_ro(str1)) __tokencap_dump(str1, strlen(str1), 1);
   if (__tokencap_is_ro(str2)) __tokencap_dump(str2, strlen(str2), 1);
@@ -378,8 +374,7 @@ __attribute__((hot)) int strcmp(const char *str1, const char *str2) {
 
 #undef strncmp
 
-__attribute__((hot)) int strncmp(const char *str1, const char *str2,
-                                 size_t len) {
+int strncmp(const char *str1, const char *str2, size_t len) {
 
   if (__tokencap_is_ro(str1)) __tokencap_dump(str1, len, 1);
   if (__tokencap_is_ro(str2)) __tokencap_dump(str2, len, 1);
@@ -405,7 +400,7 @@ __attribute__((hot)) int strncmp(const char *str1, const char *str2,
 
 #undef strcasecmp
 
-__attribute__((hot)) int strcasecmp(const char *str1, const char *str2) {
+int strcasecmp(const char *str1, const char *str2) {
 
   if (__tokencap_is_ro(str1)) __tokencap_dump(str1, strlen(str1), 1);
   if (__tokencap_is_ro(str2)) __tokencap_dump(str2, strlen(str2), 1);
@@ -429,8 +424,7 @@ __attribute__((hot)) int strcasecmp(const char *str1, const char *str2) {
 
 #undef strncasecmp
 
-__attribute__((hot)) int strncasecmp(const char *str1, const char *str2,
-                                     size_t len) {
+int strncasecmp(const char *str1, const char *str2, size_t len) {
 
   if (__tokencap_is_ro(str1)) __tokencap_dump(str1, len, 1);
   if (__tokencap_is_ro(str2)) __tokencap_dump(str2, len, 1);
@@ -456,8 +450,7 @@ __attribute__((hot)) int strncasecmp(const char *str1, const char *str2,
 
 #undef memcmp
 
-__attribute__((hot)) int memcmp(const void *mem1, const void *mem2,
-                                size_t len) {
+int memcmp(const void *mem1, const void *mem2, size_t len) {
 
   if (__tokencap_is_ro(mem1)) __tokencap_dump(mem1, len, 0);
   if (__tokencap_is_ro(mem2)) __tokencap_dump(mem2, len, 0);
@@ -484,7 +477,7 @@ __attribute__((hot)) int memcmp(const void *mem1, const void *mem2,
 
 #undef bcmp
 
-__attribute__((hot)) int bcmp(const void *mem1, const void *mem2, size_t len) {
+int bcmp(const void *mem1, const void *mem2, size_t len) {
 
   if (__tokencap_is_ro(mem1)) __tokencap_dump(mem1, len, 0);
   if (__tokencap_is_ro(mem2)) __tokencap_dump(mem2, len, 0);
@@ -511,7 +504,7 @@ __attribute__((hot)) int bcmp(const void *mem1, const void *mem2, size_t len) {
 
 #undef strstr
 
-__attribute__((hot)) char *strstr(const char *haystack, const char *needle) {
+char *strstr(const char *haystack, const char *needle) {
 
   if (__tokencap_is_ro(haystack))
     __tokencap_dump(haystack, strlen(haystack), 1);
@@ -540,8 +533,7 @@ __attribute__((hot)) char *strstr(const char *haystack, const char *needle) {
 
 #undef strcasestr
 
-__attribute__((hot)) char *strcasestr(const char *haystack,
-                                      const char *needle) {
+char *strcasestr(const char *haystack, const char *needle) {
 
   if (__tokencap_is_ro(haystack))
     __tokencap_dump(haystack, strlen(haystack), 1);
@@ -570,8 +562,8 @@ __attribute__((hot)) char *strcasestr(const char *haystack,
 
 #undef memmem
 
-__attribute__((hot)) void *memmem(const void *haystack, size_t haystack_len,
-                                  const void *needle, size_t needle_len) {
+void *memmem(const void *haystack, size_t haystack_len, const void *needle,
+             size_t needle_len) {
 
   if (__tokencap_is_ro(haystack)) __tokencap_dump(haystack, haystack_len, 1);
 

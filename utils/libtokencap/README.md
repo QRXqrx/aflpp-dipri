@@ -5,7 +5,7 @@
  The afl-clang-fast AFL_LLVM_DICT2FILE feature is much better, afl-clang-lto
  has that feature automatically integrated.
 
-For the general instruction manual, see [docs/README.md](../../docs/README.md).
+  (See ../../README.md for the general instruction manual.)
 
 This companion library allows you to instrument `strcmp()`, `memcmp()`,
 and related functions to automatically extract syntax tokens passed to any of
@@ -31,7 +31,7 @@ require AFL-instrumented binaries to work.
 
 To use the library, you *need* to make sure that your fuzzing target is compiled
 with -fno-builtin and is linked dynamically. If you wish to automate the first
-part without mucking with CFLAGS in Makefiles, you can set `AFL_NO_BUILTIN=1`
+part without mucking with CFLAGS in Makefiles, you can set AFL_NO_BUILTIN=1
 when using afl-gcc. This setting specifically adds the following flags:
 
 ```
@@ -40,18 +40,16 @@ when using afl-gcc. This setting specifically adds the following flags:
   -fno-builtin-strcasestr
 ```
 
-The next step is to load this library via LD_PRELOAD. The optimal usage pattern
-is to allow afl-fuzz to fuzz normally for a while and build up a corpus, and
-then fire off the target binary, with libtokencap.so loaded, on every file found
-by AFL++ in that earlier run. This demonstrates the basic principle:
+The next step is simply loading this library via LD_PRELOAD. The optimal usage
+pattern is to allow afl-fuzz to fuzz normally for a while and build up a corpus,
+and then fire off the target binary, with libtokencap.so loaded, on every file
+found by AFL in that earlier run. This demonstrates the basic principle:
 
 ```
   export AFL_TOKEN_FILE=$PWD/temp_output.txt
-  timeout_sec="5"
 
   for i in <out_dir>/queue/id*; do
     LD_PRELOAD=/path/to/libtokencap.so \
-    timeout -s SIGKILL ${timeout_sec} \
       /path/to/target/program [...params, including $i...]
   done
 

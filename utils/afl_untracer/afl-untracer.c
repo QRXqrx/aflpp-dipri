@@ -4,7 +4,7 @@
 
    Written by Marc Heuse <mh@mh-sec.de>
 
-   Copyright 2019-2023 AFLplusplus Project. All rights reserved.
+   Copyright 2019-2020 AFLplusplus Project. All rights reserved.
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -65,7 +65,6 @@
 #elif defined(__FreeBSD__)
   #include <sys/sysctl.h>
   #include <sys/user.h>
-  #include <sys/procctl.h>
 #else
   #error "Unsupported platform"
 #endif
@@ -108,8 +107,8 @@ __thread u32 do_exit;
 static pid_t     pid = 65537;
 static pthread_t __afl_thread;
 static u8        __afl_dummy[MAP_SIZE];
-static u8       *__afl_area_ptr = __afl_dummy;
-static u8       *inputfile;  // this will point to argv[1]
+static u8 *      __afl_area_ptr = __afl_dummy;
+static u8 *      inputfile;  // this will point to argv[1]
 static u32       len;
 
 static library_list_t liblist[MAX_LIB_COUNT];
@@ -156,7 +155,7 @@ void read_library_information(void) {
         *e = 0;
         if (n[strlen(n) - 1] == '\n') n[strlen(n) - 1] = 0;
 
-        liblist[liblist_cnt].name = (u8 *)strdup((char *)n);
+        liblist[liblist_cnt].name = strdup(n);
         liblist[liblist_cnt].addr_start = strtoull(b, NULL, 16);
         liblist[liblist_cnt].addr_end = strtoull(m, NULL, 16);
         if (debug)
@@ -177,7 +176,7 @@ void read_library_information(void) {
 
 #elif defined(__FreeBSD__)
   int    mib[] = {CTL_KERN, KERN_PROC, KERN_PROC_VMMAP, getpid()};
-  char  *buf, *start, *end;
+  char * buf, *start, *end;
   size_t miblen = sizeof(mib) / sizeof(mib[0]);
   size_t len;
 
@@ -210,17 +209,16 @@ void read_library_information(void) {
         !(region->kve_protection & KVME_PROT_EXEC)) {
 
       liblist[liblist_cnt].name =
-          region->kve_path[0] != '\0' ? (u8 *)strdup(region->kve_path) : 0;
+          region->kve_path[0] != '\0' ? strdup(region->kve_path) : 0;
       liblist[liblist_cnt].addr_start = region->kve_start;
       liblist[liblist_cnt].addr_end = region->kve_end;
 
       if (debug) {
 
-        fprintf(stderr, "%s:%lx (%lx-%lx)\n", liblist[liblist_cnt].name,
-                (unsigned long)(liblist[liblist_cnt].addr_end -
-                                liblist[liblist_cnt].addr_start),
-                (unsigned long)liblist[liblist_cnt].addr_start,
-                (unsigned long)(liblist[liblist_cnt].addr_end - 1));
+        fprintf(stderr, "%s:%x (%lx-%lx)\n", liblist[liblist_cnt].name,
+                liblist[liblist_cnt].addr_end - liblist[liblist_cnt].addr_start,
+                liblist[liblist_cnt].addr_start,
+                liblist[liblist_cnt].addr_end - 1);
 
       }
 
@@ -262,7 +260,7 @@ library_list_t *find_library(char *name) {
 
   for (size_t i = 0; i < all_image_infos->infoArrayCount; i++) {
 
-    const char       *image_name = image_infos[i].imageFilePath;
+    const char *      image_name = image_infos[i].imageFilePath;
     mach_vm_address_t image_load_address =
         (mach_vm_address_t)image_infos[i].imageLoadAddress;
     if (strstr(image_name, name)) {
@@ -288,7 +286,7 @@ library_list_t *find_library(char *name) {
 #pragma GCC optimize("O0")
 void        breakpoint(void) {
 
-         if (debug) fprintf(stderr, "Breakpoint function \"breakpoint\" reached.\n");
+  if (debug) fprintf(stderr, "Breakpoint function \"breakpoint\" reached.\n");
 
 }
 
@@ -348,7 +346,7 @@ static void __afl_map_shm(void) {
   if (id_str) {
 
 #ifdef USEMMAP
-    const char    *shm_file_path = id_str;
+    const char *   shm_file_path = id_str;
     int            shm_fd = -1;
     unsigned char *shm_base = NULL;
 
@@ -469,10 +467,10 @@ void setup_trap_instrumentation(void) {
 
   library_list_t *lib_base = NULL;
   size_t          lib_size = 0;
-  u8             *lib_addr;
-  char           *line = NULL;
+  u8 *            lib_addr;
+  char *          line = NULL;
   size_t          nread, len = 0;
-  char           *filename = getenv("AFL_UNTRACER_FILE");
+  char *          filename = getenv("AFL_UNTRACER_FILE");
   if (!filename) filename = getenv("TRAPFUZZ_FILE");
   if (!filename) FATAL("AFL_UNTRACER_FILE environment variable not set");
 
@@ -487,12 +485,6 @@ void setup_trap_instrumentation(void) {
   #endif
 #else
   uint32_t bitmap_index = 0;
-#endif
-
-#if defined(__FreeBSD__) && __FreeBSD_version >= 1301000
-  // We try to allow W/X pages despite kern.elf32/64.allow_wx system settings
-  int allow_wx = PROC_WX_MAPPINGS_PERMIT;
-  (void)procctl(P_PID, 0, PROC_WXMAP_CTL, &allow_wx);
 #endif
 
   while ((nread = getline(&line, &len, patches)) != -1) {
@@ -693,9 +685,6 @@ int main(int argc, char *argv[]) {
 
 #if defined(__linux__)
   (void)personality(ADDR_NO_RANDOMIZE);  // disable ASLR
-#elif defined(__FreeBSD__) && __FreeBSD_version >= 1200000
-  int no_randomize = PROC_ASLR_FORCE_DISABLE;
-  (void)procctl(P_PID, 0, PROC_ASLR_CTL, &no_randomize);
 #endif
 
   pid = getpid();
@@ -706,7 +695,7 @@ int main(int argc, char *argv[]) {
   if (argc > 1) {
 
     use_stdin = 0;
-    inputfile = (u8 *)argv[1];
+    inputfile = argv[1];
 
   }
 
@@ -739,7 +728,7 @@ int main(int argc, char *argv[]) {
     if (pid) {
 
       u32 status;
-      if (waitpid(pid, (int *)&status, 0) < 0) exit(1);
+      if (waitpid(pid, &status, 0) < 0) exit(1);
       /* report the test case is done and wait for the next */
       __afl_end_testcase(status);
 
